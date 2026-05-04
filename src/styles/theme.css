@@ -1,0 +1,321 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+
+  /* ═══════════════════════════════════════════════════════════════
+     DESIGN TOKENS — FORTUNE 500 ENTERPRISE SYSTEM
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* Spacing Tokens (8px Grid System) */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* Typography Tokens */
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Neue Haas Grotesk Display", sans-serif;
+
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 36px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.1;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.6;
+
+  /* Radius Tokens */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Shadow Tokens */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+  --shadow-md: 0 2px 4px rgba(0,0,0,0.12);
+  --shadow-lg: 0 4px 8px rgba(0,0,0,0.16);
+  --shadow-xl: 0 8px 16px rgba(0,0,0,0.20);
+
+  /* Motion Tokens */
+  --motion-fast: 120ms ease-out;
+  --motion-medium: 200ms ease-out;
+  --motion-slow: 300ms ease-out;
+
+  /* Z-Index Tokens */
+  --z-base: 1;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-modal: 1200;
+  --z-toast: 1300;
+  --z-overlay: 1400;
+
+  /* Semantic Colors */
+  --color-success: #2E7D32;
+  --color-warning: #ED6C02;
+  --color-error: #D32F2F;
+  --color-info: #0288D1;
+
+  /* ═══════════════════════════════════════════════════════════════
+     B1 - CORPORATE LUXURY (BASELINE)
+     Fortune 500 safe mode, compliance-first, enterprise trust
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* B1 Core Materials */
+  --b1-black-marble: #0a0a0a;
+  --b1-obsidian: #121212;
+  --b1-obsidian-panel: #1a1a1a;
+  --b1-gold-trim: #C5A572;
+  --b1-gold-minimal: #D4AF37;
+  --b1-white-space: #f5f5f0;
+  --b1-neutral-gray: #a0a0a0;
+  --b1-border-subtle: rgba(197, 165, 114, 0.15);
+
+  /* ═══════════════════════════════════════════════════════════════
+     B2 - GREEK ROYAL HYBRID (AESTHETIC LAYER)
+     Visual brand identity, aesthetic only, no claims
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* B2 Royal Accents */
+  --b2-laurel-gold: #D4AF37;
+  --b2-gold-fire: #FFD700;
+  --b2-gold-fire-dim: rgba(255, 215, 0, 0.3);
+  --b2-marble-white: #f5f5f0;
+  --b2-marble-gray: #e5e5e5;
+  --b2-royal-bronze: #CD7F32;
+  --b2-greek-key-gold: rgba(212, 175, 55, 0.2);
+
+  /* B2 Legacy (for existing mythology pages - will phase out) */
+  --ares-red: #8B0000;
+  --athena-bronze: #CD7F32;
+  --apollo-gold: #FFD700;
+  --hades-black: #0a0a0a;
+  --zeus-lightning: #4169E1;
+  --king-gold: #D4AF37;
+  --duke-red: #8B0000;
+  --marquis-purple: #6A0DAD;
+  --president-blue: #1E3A8A;
+  --sophia-white-gold: #FFF8DC;
+  --christ-radiant-blue: #4682B4;
+
+  /* ═══════════════════════════════════════════════════════════════
+     B3 - ULTRA-MODERN ROYAL (PREMIUM FUTURE MODE)
+     Billion-dollar enterprise, hyper-premium, future-proof
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* B3 Pure Luxury */
+  --b3-pure-black: #000000;
+  --b3-pure-white: #ffffff;
+  --b3-gold-micro: #C5A572;
+  --b3-glass-white: rgba(255, 255, 255, 0.05);
+  --b3-glass-border: rgba(255, 255, 255, 0.1);
+  --b3-shadow-subtle: rgba(0, 0, 0, 0.2);
+  --b3-shadow-medium: rgba(0, 0, 0, 0.4);
+
+  /* ═══════════════════════════════════════════════════════════════
+     CORE SYSTEM (B1 as default)
+     ═══════════════════════════════════════════════════════════════ */
+
+  --background: var(--b1-black-marble);
+  --foreground: var(--b1-white-space);
+  --card: var(--b1-obsidian-panel);
+  --card-foreground: var(--b1-white-space);
+  --popover: var(--b1-obsidian-panel);
+  --popover-foreground: var(--b1-white-space);
+  --primary: var(--b1-gold-minimal);
+  --primary-foreground: var(--b1-black-marble);
+  --secondary: var(--b2-royal-bronze);
+  --secondary-foreground: var(--b1-white-space);
+  --muted: var(--b1-obsidian);
+  --muted-foreground: var(--b1-neutral-gray);
+  --accent: var(--b1-gold-trim);
+  --accent-foreground: var(--b1-black-marble);
+  --destructive: #991b1b;
+  --destructive-foreground: var(--b1-white-space);
+  --border: var(--b1-border-subtle);
+  --input: transparent;
+  --input-background: var(--b1-obsidian-panel);
+  --switch-background: var(--b1-obsidian);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: rgba(197, 165, 114, 0.3);
+  --chart-1: var(--b1-gold-minimal);
+  --chart-2: var(--b2-royal-bronze);
+  --chart-3: var(--b3-gold-micro);
+  --chart-4: #6b7280;
+  --chart-5: #9ca3af;
+  --radius: 0.125rem;
+  --sidebar: var(--b1-black-marble);
+  --sidebar-foreground: var(--b1-white-space);
+  --sidebar-primary: var(--b1-gold-minimal);
+  --sidebar-primary-foreground: var(--b1-black-marble);
+  --sidebar-accent: var(--b1-obsidian-panel);
+  --sidebar-accent-foreground: var(--b1-white-space);
+  --sidebar-border: var(--b1-border-subtle);
+  --sidebar-ring: rgba(197, 165, 114, 0.3);
+}
+
+
+@theme inline {
+  /* B1 - Corporate Luxury */
+  --color-b1-black-marble: var(--b1-black-marble);
+  --color-b1-obsidian: var(--b1-obsidian);
+  --color-b1-obsidian-panel: var(--b1-obsidian-panel);
+  --color-b1-gold-trim: var(--b1-gold-trim);
+  --color-b1-gold-minimal: var(--b1-gold-minimal);
+  --color-b1-white-space: var(--b1-white-space);
+  --color-b1-neutral-gray: var(--b1-neutral-gray);
+  --color-b1-border-subtle: var(--b1-border-subtle);
+
+  /* B2 - Greek Royal Hybrid */
+  --color-b2-laurel-gold: var(--b2-laurel-gold);
+  --color-b2-gold-fire: var(--b2-gold-fire);
+  --color-b2-gold-fire-dim: var(--b2-gold-fire-dim);
+  --color-b2-marble-white: var(--b2-marble-white);
+  --color-b2-marble-gray: var(--b2-marble-gray);
+  --color-b2-royal-bronze: var(--b2-royal-bronze);
+  --color-b2-greek-key-gold: var(--b2-greek-key-gold);
+
+  /* B2 Legacy (for existing pages) */
+  --color-ares-red: var(--ares-red);
+  --color-athena-bronze: var(--athena-bronze);
+  --color-apollo-gold: var(--apollo-gold);
+  --color-hades-black: var(--hades-black);
+  --color-zeus-lightning: var(--zeus-lightning);
+  --color-king-gold: var(--king-gold);
+  --color-duke-red: var(--duke-red);
+  --color-marquis-purple: var(--marquis-purple);
+  --color-president-blue: var(--president-blue);
+  --color-sophia-white-gold: var(--sophia-white-gold);
+  --color-christ-radiant-blue: var(--christ-radiant-blue);
+
+  /* B3 - Ultra-Modern Royal */
+  --color-b3-pure-black: var(--b3-pure-black);
+  --color-b3-pure-white: var(--b3-pure-white);
+  --color-b3-gold-micro: var(--b3-gold-micro);
+  --color-b3-glass-white: var(--b3-glass-white);
+  --color-b3-glass-border: var(--b3-glass-border);
+  --color-b3-shadow-subtle: var(--b3-shadow-subtle);
+  --color-b3-shadow-medium: var(--b3-shadow-medium);
+
+  /* Core System */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /**
+  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+  */
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+}

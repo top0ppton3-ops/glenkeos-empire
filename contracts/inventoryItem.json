@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "InventoryItem",
+  "description": "Inventory item tracked per store",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^inv_[a-zA-Z0-9]+$",
+      "description": "Unique inventory item identifier"
+    },
+    "type": {
+      "type": "string",
+      "const": "inventoryItem"
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "storeId": {
+          "type": "string",
+          "pattern": "^store_[a-zA-Z0-9]+$"
+        },
+        "sku": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "category": {
+          "type": "string",
+          "enum": ["INGREDIENT", "PACKAGING", "SUPPLY", "BEVERAGE", "OTHER"]
+        },
+        "quantity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["UNIT", "LBS", "OZ", "KG", "G", "L", "ML", "GAL"]
+        },
+        "threshold": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Reorder threshold"
+        },
+        "reorderQuantity": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Default reorder quantity"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["IN_STOCK", "LOW_STOCK", "OUT_OF_STOCK", "DISCONTINUED"]
+        },
+        "supplier": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "contactEmail": { "type": "string", "format": "email" },
+            "contactPhone": { "type": "string" }
+          }
+        },
+        "cost": {
+          "type": "object",
+          "properties": {
+            "unitCost": { "type": "number", "minimum": 0 },
+            "currency": { "type": "string", "default": "USD" }
+          }
+        },
+        "lastRestocked": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "storeId",
+        "sku",
+        "name",
+        "category",
+        "quantity",
+        "unit",
+        "threshold",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "store": { "type": "string", "pattern": "^store_[a-zA-Z0-9]+$" }
+      }
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "required": ["id", "type", "attributes"]
+}

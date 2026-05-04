@@ -1,0 +1,181 @@
+{
+  "campuses": [
+    {
+      "campus_id": "USC",
+      "campus_name": "University of Southern California",
+      "address": {
+        "line1": "University Park Campus",
+        "city": "Los Angeles",
+        "state": "CA",
+        "postal_code": "90089"
+      },
+      "center_coordinates": {
+        "latitude": 34.0224,
+        "longitude": -118.2851
+      },
+      "total_students": 47500,
+      "delivery_zones": [
+        {
+          "zone_id": "USC_ZONE_NORTH",
+          "zone_name": "North Campus Dorms",
+          "buildings": [
+            {"building_id": "USC_PARDEE", "name": "Pardee Tower", "floors": 11, "capacity": 420},
+            {"building_id": "USC_MARKS", "name": "Marks Hall", "floors": 11, "capacity": 420},
+            {"building_id": "USC_TROJAN", "name": "Trojan Hall", "floors": 12, "capacity": 536}
+          ],
+          "delivery_fee": 2.99,
+          "average_delivery_time_minutes": 15
+        },
+        {
+          "zone_id": "USC_ZONE_VILLAGE",
+          "zone_name": "USC Village",
+          "buildings": [
+            {"building_id": "USC_VILLAGE_A", "name": "Village A", "floors": 10, "capacity": 480},
+            {"building_id": "USC_VILLAGE_B", "name": "Village B", "floors": 10, "capacity": 480},
+            {"building_id": "USC_VILLAGE_C", "name": "Village C", "floors": 10, "capacity": 480}
+          ],
+          "delivery_fee": 1.99,
+          "average_delivery_time_minutes": 12
+        }
+      ],
+      "delivery_hours": {
+        "monday": "11:00-02:00",
+        "tuesday": "11:00-02:00",
+        "wednesday": "11:00-02:00",
+        "thursday": "11:00-02:00",
+        "friday": "11:00-03:00",
+        "saturday": "11:00-03:00",
+        "sunday": "12:00-02:00"
+      },
+      "payment_methods": ["credit_card", "debit_card", "paypal", "dining_dollars", "trojan_cash"],
+      "active": true
+    },
+    {
+      "campus_id": "UCLA",
+      "campus_name": "University of California, Los Angeles",
+      "address": {
+        "line1": "Westwood Campus",
+        "city": "Los Angeles",
+        "state": "CA",
+        "postal_code": "90095"
+      },
+      "center_coordinates": {
+        "latitude": 34.0689,
+        "longitude": -118.4452
+      },
+      "total_students": 46000,
+      "delivery_zones": [
+        {
+          "zone_id": "UCLA_ZONE_HILL",
+          "zone_name": "The Hill",
+          "buildings": [
+            {"building_id": "UCLA_HEDRICK", "name": "Hedrick Hall", "floors": 14, "capacity": 1200},
+            {"building_id": "UCLA_DYKSTRA", "name": "Dykstra Hall", "floors": 8, "capacity": 840},
+            {"building_id": "UCLA_SPROUL", "name": "Sproul Hall", "floors": 12, "capacity": 1200}
+          ],
+          "delivery_fee": 2.99,
+          "average_delivery_time_minutes": 18
+        },
+        {
+          "zone_id": "UCLA_ZONE_SUNSET",
+          "zone_name": "Sunset Village",
+          "buildings": [
+            {"building_id": "UCLA_CANYON", "name": "Canyon Point", "floors": 4, "capacity": 624},
+            {"building_id": "UCLA_COURTSIDE", "name": "Courtside", "floors": 5, "capacity": 624}
+          ],
+          "delivery_fee": 2.49,
+          "average_delivery_time_minutes": 15
+        }
+      ],
+      "delivery_hours": {
+        "monday": "10:00-midnight",
+        "tuesday": "10:00-midnight",
+        "wednesday": "10:00-midnight",
+        "thursday": "10:00-midnight",
+        "friday": "10:00-02:00",
+        "saturday": "10:00-02:00",
+        "sunday": "11:00-midnight"
+      },
+      "payment_methods": ["credit_card", "debit_card", "paypal", "bruincard", "easy_pay"],
+      "active": true
+    },
+    {
+      "campus_id": "CALSTATE_LA",
+      "campus_name": "California State University, Los Angeles",
+      "address": {
+        "line1": "5151 State University Dr",
+        "city": "Los Angeles",
+        "state": "CA",
+        "postal_code": "90032"
+      },
+      "center_coordinates": {
+        "latitude": 34.0668,
+        "longitude": -118.1681
+      },
+      "total_students": 28000,
+      "delivery_zones": [
+        {
+          "zone_id": "CALSTATE_ZONE_MAIN",
+          "zone_name": "Main Campus",
+          "buildings": [
+            {"building_id": "CALSTATE_HOUSING", "name": "Student Housing", "floors": 4, "capacity": 400}
+          ],
+          "delivery_fee": 1.99,
+          "average_delivery_time_minutes": 12
+        }
+      ],
+      "delivery_hours": {
+        "monday": "11:00-22:00",
+        "tuesday": "11:00-22:00",
+        "wednesday": "11:00-22:00",
+        "thursday": "11:00-22:00",
+        "friday": "11:00-midnight",
+        "saturday": "11:00-midnight",
+        "sunday": "12:00-22:00"
+      },
+      "payment_methods": ["credit_card", "debit_card", "paypal", "golden_eagle_card"],
+      "active": true
+    }
+  ],
+  "delivery_fleet": {
+    "human_drivers": {
+      "total": 45,
+      "active_shifts": {
+        "morning": 5,
+        "afternoon": 15,
+        "evening": 20,
+        "late_night": 5
+      },
+      "vehicle_types": ["car", "bike", "scooter"]
+    },
+    "robot_delivery": {
+      "total_units": 12,
+      "active_units": 8,
+      "manufacturers": ["Starship", "Kiwibot"],
+      "capacity_per_robot": 3,
+      "max_distance_miles": 2,
+      "campuses_deployed": ["USC", "UCLA"]
+    },
+    "cart_drivers": {
+      "total": 8,
+      "campus_specific": true,
+      "cart_capacity": "50 orders",
+      "operates_during": "peak_hours",
+      "campuses": ["USC", "UCLA"]
+    }
+  },
+  "dorm_delivery_instructions": {
+    "default": "Meet at lobby entrance. Call upon arrival.",
+    "contactless": "Leave at front desk. Text when delivered.",
+    "room_delivery": "Available for premium members only. +$5 fee."
+  },
+  "peak_times": [
+    {"day": "monday", "time": "18:00-21:00", "demand_multiplier": 1.5},
+    {"day": "tuesday", "time": "18:00-21:00", "demand_multiplier": 1.5},
+    {"day": "wednesday", "time": "18:00-21:00", "demand_multiplier": 1.5},
+    {"day": "thursday", "time": "18:00-22:00", "demand_multiplier": 1.8},
+    {"day": "friday", "time": "19:00-midnight", "demand_multiplier": 2.0},
+    {"day": "saturday", "time": "19:00-midnight", "demand_multiplier": 2.0},
+    {"day": "sunday", "time": "18:00-21:00", "demand_multiplier": 1.3}
+  ]
+}

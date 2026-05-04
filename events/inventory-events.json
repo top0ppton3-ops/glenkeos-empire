@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "InventoryEvents",
+  "description": "Domain events for inventory management",
+  "definitions": {
+    "INVENTORY_CHANGED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "INVENTORY_CHANGED" },
+        "entityType": { "const": "inventoryItem" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "storeId": { "type": "string" },
+            "sku": { "type": "string" },
+            "oldQuantity": { "type": "number" },
+            "newQuantity": { "type": "number" },
+            "changeType": { "type": "string", "enum": ["RESTOCK", "USAGE", "ADJUSTMENT", "WASTE"] }
+          },
+          "required": ["storeId", "sku", "oldQuantity", "newQuantity", "changeType"]
+        }
+      }
+    },
+    "INVENTORY_LOW_STOCK": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "INVENTORY_LOW_STOCK" },
+        "entityType": { "const": "inventoryItem" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "storeId": { "type": "string" },
+            "sku": { "type": "string" },
+            "currentQuantity": { "type": "number" },
+            "threshold": { "type": "number" }
+          },
+          "required": ["storeId", "sku", "currentQuantity", "threshold"]
+        }
+      }
+    },
+    "INVENTORY_OUT_OF_STOCK": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "INVENTORY_OUT_OF_STOCK" },
+        "entityType": { "const": "inventoryItem" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "storeId": { "type": "string" },
+            "sku": { "type": "string" },
+            "impactedOrders": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["storeId", "sku"]
+        }
+      }
+    },
+    "INVENTORY_RESTOCKED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "INVENTORY_RESTOCKED" },
+        "entityType": { "const": "inventoryItem" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "storeId": { "type": "string" },
+            "sku": { "type": "string" },
+            "quantityAdded": { "type": "number" },
+            "newTotal": { "type": "number" },
+            "supplierId": { "type": "string" }
+          },
+          "required": ["storeId", "sku", "quantityAdded", "newTotal"]
+        }
+      }
+    }
+  }
+}

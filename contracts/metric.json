@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Metric",
+  "description": "Operational metrics for dashboards and analytics",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^metric_[a-zA-Z0-9]+$",
+      "description": "Unique metric identifier"
+    },
+    "type": {
+      "type": "string",
+      "const": "metric"
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "storeId": {
+          "type": ["string", "null"],
+          "pattern": "^store_[a-zA-Z0-9]+$",
+          "description": "Store-specific metric, null for global"
+        },
+        "metricType": {
+          "type": "string",
+          "enum": [
+            "ACTIVE_ORDERS",
+            "AVG_PREP_TIME",
+            "OUT_FOR_DELIVERY",
+            "STOCKOUTS",
+            "REVENUE",
+            "ORDER_COUNT",
+            "CUSTOMER_SATISFACTION",
+            "DRIVER_UTILIZATION",
+            "DELIVERY_TIME_AVG"
+          ]
+        },
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["COUNT", "MINUTES", "HOURS", "PERCENTAGE", "CURRENCY", "RATIO"]
+        },
+        "dimension": {
+          "type": "string",
+          "enum": ["REALTIME", "HOURLY", "DAILY", "WEEKLY", "MONTHLY"]
+        },
+        "period": {
+          "type": "object",
+          "properties": {
+            "start": { "type": "string", "format": "date-time" },
+            "end": { "type": "string", "format": "date-time" }
+          },
+          "required": ["start", "end"]
+        },
+        "trend": {
+          "type": "object",
+          "properties": {
+            "direction": { "type": "string", "enum": ["UP", "DOWN", "STABLE"] },
+            "percentage": { "type": "number" },
+            "comparison": { "type": "string", "enum": ["PREVIOUS_PERIOD", "SAME_PERIOD_LAST_WEEK", "SAME_PERIOD_LAST_MONTH"] }
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "metricType",
+        "value",
+        "unit",
+        "dimension",
+        "period",
+        "createdAt"
+      ]
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "store": { "type": ["string", "null"], "pattern": "^store_[a-zA-Z0-9]+$" }
+      }
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "required": ["id", "type", "attributes"]
+}

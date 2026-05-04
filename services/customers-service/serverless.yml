@@ -1,0 +1,130 @@
+service: glenkeos-customers-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'staging'}
+  region: ${opt:region, 'us-east-1'}
+  memorySize: 512
+  timeout: 30
+  
+  environment:
+    STAGE: ${self:provider.stage}
+    REGION: ${self:provider.region}
+    DB_HOST: ${ssm:/glenkeos/${self:provider.stage}/db/host}
+    DB_NAME: ${ssm:/glenkeos/${self:provider.stage}/db/name}
+    DB_USER: ${ssm:/glenkeos/${self:provider.stage}/db/user}
+    DB_PASSWORD: ${ssm:/glenkeos/${self:provider.stage}/db/password}
+    EVENTBUS_NAME: glenkeos-${self:provider.stage}-bus
+  
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource: !Sub arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/glenkeos-${self:provider.stage}-bus
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+          Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/glenkeos/${self:provider.stage}/*
+
+functions:
+  createCustomer:
+    handler: src/handlers/customers.createCustomer
+    events:
+      - http:
+          path: /customers
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  getCustomer:
+    handler: src/handlers/customers.getCustomer
+    events:
+      - http:
+          path: /customers/{customerId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  listCustomers:
+    handler: src/handlers/customers.listCustomers
+    events:
+      - http:
+          path: /customers
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  updateCustomer:
+    handler: src/handlers/customers.updateCustomer
+    events:
+      - http:
+          path: /customers/{customerId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  addRewardPoints:
+    handler: src/handlers/rewards.addRewardPoints
+    events:
+      - http:
+          path: /customers/{customerId}/rewards
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  getRewardHistory:
+    handler: src/handlers/rewards.getRewardHistory
+    events:
+      - http:
+          path: /customers/{customerId}/rewards/history
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  createReferral:
+    handler: src/handlers/referrals.createReferral
+    events:
+      - http:
+          path: /customers/{customerId}/referrals
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  # Event consumer
+  handleOrderCompleted:
+    handler: src/handlers/events.handleOrderCompleted
+    events:
+      - eventBridge:
+          eventBus: glenkeos-${self:provider.stage}-bus
+          pattern:
+            detail-type:
+              - ORDER_COMPLETED
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-typescript
+
+package:
+  individually: true
+  exclude:
+    - node_modules/**
+    - test/**

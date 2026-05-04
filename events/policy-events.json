@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "PolicyEvents",
+  "description": "Domain events for policy management",
+  "definitions": {
+    "POLICY_CREATED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "POLICY_CREATED" },
+        "entityType": { "const": "policy" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "version": { "type": "string" },
+            "category": { "type": "string" }
+          },
+          "required": ["name", "version", "category"]
+        }
+      }
+    },
+    "POLICY_UPDATED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "POLICY_UPDATED" },
+        "entityType": { "const": "policy" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "previousVersion": { "type": "string" },
+            "newVersion": { "type": "string" },
+            "changes": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["previousVersion", "newVersion"]
+        }
+      }
+    },
+    "POLICY_APPROVED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "POLICY_APPROVED" },
+        "entityType": { "const": "policy" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "approvedBy": { "type": "string" },
+            "effectiveDate": { "type": "string", "format": "date-time" }
+          },
+          "required": ["approvedBy", "effectiveDate"]
+        }
+      }
+    },
+    "POLICY_ARCHIVED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "POLICY_ARCHIVED" },
+        "entityType": { "const": "policy" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "archivedBy": { "type": "string" },
+            "reason": { "type": "string" }
+          },
+          "required": ["archivedBy"]
+        }
+      }
+    }
+  }
+}

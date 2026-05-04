@@ -1,0 +1,179 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'GlenKeos EventBridge - Custom Bus + DLQ + Archive'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - staging
+      - production
+    Description: Environment name
+
+Resources:
+  # Custom Event Bus
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: !Sub glenkeos-${Environment}
+
+  # Dead Letter Queue
+  EventDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub glenkeos-${Environment}-event-dlq
+      MessageRetentionPeriod: 1209600  # 14 days
+      ReceiveMessageWaitTimeSeconds: 10
+
+  # DLQ Policy
+  EventDLQPolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref EventDLQ
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt EventDLQ.Arn
+
+  # Event Archive (for replay)
+  EventArchive:
+    Type: AWS::Events::Archive
+    Properties:
+      ArchiveName: !Sub glenkeos-${Environment}-archive
+      Description: Archive for GlenKeos events (supports event replay)
+      EventSourceArn: !GetAtt EventBus.Arn
+      RetentionDays: 7
+      EventPattern:
+        source:
+          - glenkeos
+
+  # CloudWatch Log Group
+  EventLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/events/glenkeos-${Environment}
+      RetentionInDays: 7
+
+  # IAM Role for EventBridge to write to CloudWatch Logs
+  EventBridgeLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub glenkeos-${Environment}-eventbridge-logs
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: logs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub ${EventLogGroup.Arn}:*
+
+  # Event Rules (sample - add all 29 from master spec)
+  StoreCreatedRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub glenkeos-${Environment}-store-created
+      Description: Route STORE_CREATED events
+      EventBusName: !Ref EventBus
+      EventPattern:
+        source:
+          - glenkeos
+        detail-type:
+          - STORE_CREATED
+      Targets:
+        - Arn: !GetAtt EventLogGroup.Arn
+          Id: logs
+          RoleArn: !GetAtt EventBridgeLogsRole.Arn
+
+  OrderCreatedRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub glenkeos-${Environment}-order-created
+      Description: Route ORDER_CREATED events
+      EventBusName: !Ref EventBus
+      EventPattern:
+        source:
+          - glenkeos
+        detail-type:
+          - ORDER_CREATED
+      Targets:
+        - Arn: !GetAtt EventLogGroup.Arn
+          Id: logs
+          RoleArn: !GetAtt EventBridgeLogsRole.Arn
+
+  # CloudWatch Alarms
+  FailedInvocationsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub glenkeos-${Environment}-eventbridge-failed-invocations
+      AlarmDescription: EventBridge failed invocations exceeded threshold
+      MetricName: FailedInvocations
+      Namespace: AWS/Events
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: EventBusName
+          Value: !Ref EventBus
+
+  DLQMessagesAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub glenkeos-${Environment}-event-dlq-messages
+      AlarmDescription: Events in DLQ - delivery failures detected
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt EventDLQ.QueueName
+
+Outputs:
+  EventBusName:
+    Description: EventBridge event bus name
+    Value: !Ref EventBus
+    Export:
+      Name: !Sub ${Environment}-EventBusName
+
+  EventBusArn:
+    Description: EventBridge event bus ARN
+    Value: !GetAtt EventBus.Arn
+    Export:
+      Name: !Sub ${Environment}-EventBusArn
+
+  EventDLQUrl:
+    Description: Event DLQ URL
+    Value: !Ref EventDLQ
+    Export:
+      Name: !Sub ${Environment}-EventDLQUrl
+
+  EventDLQArn:
+    Description: Event DLQ ARN
+    Value: !GetAtt EventDLQ.Arn
+
+  EventArchiveArn:
+    Description: Event archive ARN (for replay)
+    Value: !GetAtt EventArchive.Arn
+
+  EventLogGroupName:
+    Description: CloudWatch log group for event debugging
+    Value: !Ref EventLogGroup

@@ -1,0 +1,325 @@
+{
+  "consumerGroups": [
+    {
+      "service": "inventory",
+      "consumers": [
+        {
+          "event": "ORDER_CREATED",
+          "handler": "handleOrderCreated",
+          "description": "Reserve inventory for new order",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        }
+      ]
+    },
+    {
+      "service": "compliance",
+      "consumers": [
+        {
+          "event": "ORDER_CREATED",
+          "handler": "handleOrderCreated",
+          "description": "Log order creation in compliance trail",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "ORDER_STATUS_CHANGED",
+          "handler": "handleOrderStatusChanged",
+          "description": "Log order status transitions",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "ORDER_ASSIGNED",
+          "handler": "handleOrderAssigned",
+          "description": "Log driver assignments",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "ORDER_CANCELLED",
+          "handler": "handleOrderCancelled",
+          "description": "Log order cancellations",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "ORDER_DELIVERED",
+          "handler": "handleOrderDelivered",
+          "description": "Log order completions",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "INVENTORY_LOW_STOCK",
+          "handler": "handleInventoryLowStock",
+          "description": "Flag low stock as compliance concern",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "DRIVER_ASSIGNED",
+          "handler": "handleDriverAssigned",
+          "description": "Log driver assignments",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "STAFF_CREATED",
+          "handler": "handleStaffCreated",
+          "description": "Log staff creation",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "STAFF_ROLE_CHANGED",
+          "handler": "handleStaffRoleChanged",
+          "description": "Log role changes for audit",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "STAFF_SESSION_STARTED",
+          "handler": "handleStaffSessionStarted",
+          "description": "Log session starts",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "STAFF_SESSION_ENDED",
+          "handler": "handleStaffSessionEnded",
+          "description": "Log session ends",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "STAFF_DELETED",
+          "handler": "handleStaffDeleted",
+          "description": "Log staff deletions",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "POLICY_CREATED",
+          "handler": "handlePolicyCreated",
+          "description": "Log policy creation",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "POLICY_UPDATED",
+          "handler": "handlePolicyUpdated",
+          "description": "Log policy updates",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "POLICY_ACKNOWLEDGED",
+          "handler": "handlePolicyAcknowledged",
+          "description": "Log policy acknowledgments",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "RISK_EVENT_CREATED",
+          "handler": "handleRiskEventCreated",
+          "description": "Log risk events",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "RISK_EVENT_ESCALATED",
+          "handler": "handleRiskEventEscalated",
+          "description": "Log risk escalations",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "RISK_EVENT_MITIGATED",
+          "handler": "handleRiskEventMitigated",
+          "description": "Log risk mitigations",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "RISK_EVENT_CLOSED",
+          "handler": "handleRiskEventClosed",
+          "description": "Log risk closures",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        }
+      ]
+    },
+    {
+      "service": "metrics",
+      "consumers": [
+        {
+          "event": "ORDER_CREATED",
+          "handler": "handleOrderCreated",
+          "description": "Record order creation metric",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "ORDER_STATUS_CHANGED",
+          "handler": "handleOrderStatusChanged",
+          "description": "Record order status transition metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "ORDER_CANCELLED",
+          "handler": "handleOrderCancelled",
+          "description": "Record cancellation metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "ORDER_DELIVERED",
+          "handler": "handleOrderDelivered",
+          "description": "Record delivery metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "INVENTORY_UPDATED",
+          "handler": "handleInventoryUpdated",
+          "description": "Record inventory change metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "INVENTORY_REORDER_TRIGGERED",
+          "handler": "handleInventoryReorderTriggered",
+          "description": "Record reorder metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "INVENTORY_RECEIVED",
+          "handler": "handleInventoryReceived",
+          "description": "Record inventory receipt metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "DRIVER_STATUS_CHANGED",
+          "handler": "handleDriverStatusChanged",
+          "description": "Record driver availability metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "DRIVER_LOCATION_UPDATED",
+          "handler": "handleDriverLocationUpdated",
+          "description": "Record driver location metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "DRIVER_RATING_UPDATED",
+          "handler": "handleDriverRatingUpdated",
+          "description": "Record driver rating metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "RISK_EVENT_CREATED",
+          "handler": "handleRiskEventCreated",
+          "description": "Record risk event metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "COMPLIANCE_VIOLATION_DETECTED",
+          "handler": "handleComplianceViolationDetected",
+          "description": "Record violation metrics",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        }
+      ]
+    },
+    {
+      "service": "orders",
+      "consumers": [
+        {
+          "event": "DRIVER_ASSIGNED",
+          "handler": "handleDriverAssigned",
+          "description": "Update order with driver assignment",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "INVENTORY_UPDATED",
+          "handler": "handleInventoryUpdated",
+          "description": "Check inventory availability for pending orders",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "INVENTORY_LOW_STOCK",
+          "handler": "handleInventoryLowStock",
+          "description": "Flag orders with low stock items",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        }
+      ]
+    },
+    {
+      "service": "drivers",
+      "consumers": [
+        {
+          "event": "ORDER_ASSIGNED",
+          "handler": "handleOrderAssigned",
+          "description": "Notify driver of new assignment",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        }
+      ]
+    },
+    {
+      "service": "stores",
+      "consumers": [
+        {
+          "event": "INVENTORY_LOW_STOCK",
+          "handler": "handleInventoryLowStock",
+          "description": "Alert store managers of low stock",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "INVENTORY_REORDER_TRIGGERED",
+          "handler": "handleInventoryReorderTriggered",
+          "description": "Process reorder for store",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        }
+      ]
+    },
+    {
+      "service": "staff",
+      "consumers": [
+        {
+          "event": "POLICY_CREATED",
+          "handler": "handlePolicyCreated",
+          "description": "Notify staff of new policies",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "POLICY_UPDATED",
+          "handler": "handlePolicyUpdated",
+          "description": "Notify staff of policy updates",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        }
+      ]
+    },
+    {
+      "service": "policies",
+      "consumers": [
+        {
+          "event": "STAFF_ROLE_CHANGED",
+          "handler": "handleStaffRoleChanged",
+          "description": "Update policy requirements based on new role",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        }
+      ]
+    },
+    {
+      "service": "risk",
+      "consumers": [
+        {
+          "event": "ORDER_CREATED",
+          "handler": "handleOrderCreated",
+          "description": "Evaluate order for risk factors",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "STAFF_ROLE_CHANGED",
+          "handler": "handleStaffRoleChanged",
+          "description": "Evaluate role changes for risk",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "COMPLIANCE_VIOLATION_DETECTED",
+          "handler": "handleComplianceViolationDetected",
+          "description": "Create risk event from violation",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "DATA_EXPORT_REQUESTED",
+          "handler": "handleDataExportRequested",
+          "description": "Evaluate data export for risk",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        },
+        {
+          "event": "ACCESS_DENIED",
+          "handler": "handleAccessDenied",
+          "description": "Evaluate access denials for risk patterns",
+          "dlqPolicy": "retry-3-times-then-dlq"
+        }
+      ]
+    }
+  ]
+}

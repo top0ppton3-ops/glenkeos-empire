@@ -1,0 +1,2122 @@
+openapi: 3.0.3
+info:
+  title: GlenKeos API
+  version: 1.0.0
+  description: |
+    Complete REST API for GlenKeos multi-entity restaurant and delivery ecosystem.
+
+    ## Authentication
+    All endpoints require JWT bearer token authentication except public endpoints.
+
+    ## Rate Limiting
+    - Public API: 100 requests/minute
+    - Internal API: 1000 requests/minute
+
+    ## Error Handling
+    All errors follow standard HTTP status codes with JSON error responses.
+
+  contact:
+    name: GlenKeos API Support
+    email: api@glenkeos.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.glenkeos.com/api/v1
+    description: Production API
+  - url: https://api.glenkeos.com/internal/api/v1
+    description: Internal API
+  - url: http://localhost:3000/api/v1
+    description: Local development
+
+tags:
+  - name: Stores
+    description: Store management operations
+  - name: Orders
+    description: Order lifecycle management
+  - name: Inventory
+    description: Inventory tracking and management
+  - name: Drivers
+    description: Driver operations and tracking
+  - name: Staff
+    description: Staff and authentication management
+  - name: Policies
+    description: Governance and compliance policies
+  - name: Risk
+    description: Risk event monitoring
+  - name: Compliance
+    description: Compliance audit trail
+  - name: Metrics
+    description: Operational metrics and analytics
+
+paths:
+  /stores:
+    get:
+      summary: List stores
+      tags: [Stores]
+      operationId: listStores
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACTIVE, INACTIVE, MAINTENANCE]
+      responses:
+        '200':
+          description: List of stores
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Store'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create store
+      tags: [Stores]
+      operationId: createStore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStoreRequest'
+      responses:
+        '201':
+          description: Store created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Store'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /stores/{id}:
+    parameters:
+      - $ref: '#/components/parameters/StoreIdParam'
+    get:
+      summary: Get store by ID
+      tags: [Stores]
+      operationId: getStore
+      responses:
+        '200':
+          description: Store details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Store'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      summary: Update store
+      tags: [Stores]
+      operationId: updateStore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStoreRequest'
+      responses:
+        '200':
+          description: Store updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Store'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /orders:
+    get:
+      summary: List orders
+      tags: [Orders]
+      operationId: listOrders
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+        - name: storeId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+        - name: customerId
+          in: query
+          schema:
+            type: string
+        - name: driverId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create order
+      tags: [Orders]
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /orders/{id}:
+    parameters:
+      - $ref: '#/components/parameters/OrderIdParam'
+    get:
+      summary: Get order by ID
+      tags: [Orders]
+      operationId: getOrder
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      summary: Update order
+      tags: [Orders]
+      operationId: updateOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrderRequest'
+      responses:
+        '200':
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /orders/{id}/status:
+    parameters:
+      - $ref: '#/components/parameters/OrderIdParam'
+    patch:
+      summary: Update order status
+      tags: [Orders]
+      operationId: updateOrderStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  $ref: '#/components/schemas/OrderStatus'
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Order status updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /orders/{id}/assign-driver:
+    parameters:
+      - $ref: '#/components/parameters/OrderIdParam'
+    patch:
+      summary: Assign driver to order
+      tags: [Orders]
+      operationId: assignDriver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - driverId
+              properties:
+                driverId:
+                  type: string
+                  pattern: ^drv_[a-zA-Z0-9]+$
+                assignmentReason:
+                  type: string
+      responses:
+        '200':
+          description: Driver assigned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /inventory:
+    get:
+      summary: List inventory items
+      tags: [Inventory]
+      operationId: listInventory
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [IN_STOCK, LOW_STOCK, OUT_OF_STOCK, DISCONTINUED]
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of inventory items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryItem'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create inventory item
+      tags: [Inventory]
+      operationId: createInventoryItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInventoryItemRequest'
+      responses:
+        '201':
+          description: Inventory item created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InventoryItem'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /inventory/{id}:
+    parameters:
+      - $ref: '#/components/parameters/InventoryIdParam'
+    get:
+      summary: Get inventory item by ID
+      tags: [Inventory]
+      operationId: getInventoryItem
+      responses:
+        '200':
+          description: Inventory item details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InventoryItem'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      summary: Update inventory item
+      tags: [Inventory]
+      operationId: updateInventoryItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInventoryItemRequest'
+      responses:
+        '200':
+          description: Inventory item updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InventoryItem'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /drivers:
+    get:
+      summary: List drivers
+      tags: [Drivers]
+      operationId: listDrivers
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+        - name: storeId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ONLINE, OFFLINE, BUSY, ON_BREAK, INACTIVE]
+      responses:
+        '200':
+          description: List of drivers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Driver'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create driver
+      tags: [Drivers]
+      operationId: createDriver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDriverRequest'
+      responses:
+        '201':
+          description: Driver created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Driver'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /drivers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/DriverIdParam'
+    get:
+      summary: Get driver by ID
+      tags: [Drivers]
+      operationId: getDriver
+      responses:
+        '200':
+          description: Driver details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Driver'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      summary: Update driver
+      tags: [Drivers]
+      operationId: updateDriver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDriverRequest'
+      responses:
+        '200':
+          description: Driver updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Driver'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /drivers/{id}/status:
+    parameters:
+      - $ref: '#/components/parameters/DriverIdParam'
+    patch:
+      summary: Update driver status
+      tags: [Drivers]
+      operationId: updateDriverStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum: [ONLINE, OFFLINE, BUSY, ON_BREAK, INACTIVE]
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Driver status updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Driver'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /staff:
+    get:
+      summary: List staff
+      tags: [Staff]
+      operationId: listStaff
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+        - name: role
+          in: query
+          schema:
+            type: string
+        - name: storeId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of staff
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Staff'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create staff
+      tags: [Staff]
+      operationId: createStaff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStaffRequest'
+      responses:
+        '201':
+          description: Staff created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Staff'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /staff/{id}:
+    parameters:
+      - $ref: '#/components/parameters/StaffIdParam'
+    get:
+      summary: Get staff by ID
+      tags: [Staff]
+      operationId: getStaff
+      responses:
+        '200':
+          description: Staff details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Staff'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      summary: Update staff
+      tags: [Staff]
+      operationId: updateStaff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStaffRequest'
+      responses:
+        '200':
+          description: Staff updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Staff'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /policies:
+    get:
+      summary: List policies
+      tags: [Policies]
+      operationId: listPolicies
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [DRAFT, ACTIVE, ARCHIVED, DEPRECATED]
+      responses:
+        '200':
+          description: List of policies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Policy'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create policy
+      tags: [Policies]
+      operationId: createPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePolicyRequest'
+      responses:
+        '201':
+          description: Policy created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Policy'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /policies/{id}:
+    parameters:
+      - $ref: '#/components/parameters/PolicyIdParam'
+    get:
+      summary: Get policy by ID
+      tags: [Policies]
+      operationId: getPolicy
+      responses:
+        '200':
+          description: Policy details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Policy'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      summary: Update policy
+      tags: [Policies]
+      operationId: updatePolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePolicyRequest'
+      responses:
+        '200':
+          description: Policy updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Policy'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /risk/events:
+    get:
+      summary: List risk events
+      tags: [Risk]
+      operationId: listRiskEvents
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [LOW, MEDIUM, HIGH, CRITICAL]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, IN_REVIEW, MITIGATED, RESOLVED, ESCALATED]
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of risk events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RiskEvent'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Create risk event
+      tags: [Risk]
+      operationId: createRiskEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRiskEventRequest'
+      responses:
+        '201':
+          description: Risk event created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RiskEvent'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /risk/events/{id}:
+    parameters:
+      - $ref: '#/components/parameters/RiskEventIdParam'
+    get:
+      summary: Get risk event by ID
+      tags: [Risk]
+      operationId: getRiskEvent
+      responses:
+        '200':
+          description: Risk event details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RiskEvent'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      summary: Update risk event
+      tags: [Risk]
+      operationId: updateRiskEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRiskEventRequest'
+      responses:
+        '200':
+          description: Risk event updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RiskEvent'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /compliance/events:
+    get:
+      summary: List compliance events
+      tags: [Compliance]
+      operationId: listComplianceEvents
+      parameters:
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/OffsetParam'
+        - name: eventType
+          in: query
+          schema:
+            type: string
+        - name: actorId
+          in: query
+          schema:
+            type: string
+        - name: entityType
+          in: query
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: List of compliance events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ComplianceEvent'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      summary: Log compliance event
+      tags: [Compliance]
+      operationId: logComplianceEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateComplianceEventRequest'
+      responses:
+        '201':
+          description: Compliance event logged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ComplianceEvent'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /compliance/events/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ComplianceEventIdParam'
+    get:
+      summary: Get compliance event by ID
+      tags: [Compliance]
+      operationId: getComplianceEvent
+      responses:
+        '200':
+          description: Compliance event details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ComplianceEvent'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics:
+    get:
+      summary: Get operational metrics
+      tags: [Metrics]
+      operationId: getMetrics
+      parameters:
+        - name: storeId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: metricType
+          in: query
+          schema:
+            type: string
+        - name: dimension
+          in: query
+          schema:
+            type: string
+            enum: [REALTIME, HOURLY, DAILY, WEEKLY, MONTHLY]
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Metrics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Metric'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    OffsetParam:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    StoreIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^store_[a-zA-Z0-9]+$
+    OrderIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^ord_[a-zA-Z0-9]+$
+    InventoryIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^inv_[a-zA-Z0-9]+$
+    DriverIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^drv_[a-zA-Z0-9]+$
+    StaffIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^staff_[a-zA-Z0-9]+$
+    PolicyIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^pol_[a-zA-Z0-9]+$
+    RiskEventIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^risk_[a-zA-Z0-9]+$
+    ComplianceEventIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^comp_[a-zA-Z0-9]+$
+
+  responses:
+    BadRequestError:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    # Core Resource Schemas
+    Store:
+      type: object
+      required: [id, type, attributes]
+      properties:
+        id:
+          type: string
+          pattern: ^store_[a-zA-Z0-9]+$
+        type:
+          type: string
+          enum: [store]
+        attributes:
+          type: object
+          required: [name, address, status, createdAt, updatedAt]
+          properties:
+            name:
+              type: string
+            address:
+              $ref: '#/components/schemas/Address'
+            phone:
+              type: string
+            email:
+              type: string
+              format: email
+            status:
+              type: string
+              enum: [ACTIVE, INACTIVE, MAINTENANCE]
+            operatingHours:
+              type: object
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+        meta:
+          type: object
+
+    Order:
+      type: object
+      required: [id, type, attributes]
+      properties:
+        id:
+          type: string
+          pattern: ^ord_[a-zA-Z0-9]+$
+        type:
+          type: string
+          enum: [order]
+        attributes:
+          type: object
+          required: [storeId, customerId, status, items, pricing, delivery, customer, timestamps, createdAt, updatedAt]
+          properties:
+            storeId:
+              type: string
+            customerId:
+              type: string
+            status:
+              $ref: '#/components/schemas/OrderStatus'
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrderItem'
+            pricing:
+              $ref: '#/components/schemas/OrderPricing'
+            delivery:
+              $ref: '#/components/schemas/OrderDelivery'
+            customer:
+              $ref: '#/components/schemas/CustomerInfo'
+            risk:
+              $ref: '#/components/schemas/OrderRisk'
+            compliance:
+              type: object
+            timestamps:
+              $ref: '#/components/schemas/OrderTimestamps'
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+        meta:
+          type: object
+
+    InventoryItem:
+      type: object
+      required: [id, type, attributes]
+      properties:
+        id:
+          type: string
+          pattern: ^inv_[a-zA-Z0-9]+$
+        type:
+          type: string
+          enum: [inventoryItem]
+        attributes:
+          type: object
+          required: [storeId, sku, name, category, quantity, unit, threshold, status, createdAt, updatedAt]
+          properties:
+            storeId:
+              type: string
+            sku:
+              type: string
+            name:
+              type: string
+            category:
+              type: string
+              enum: [INGREDIENT, PACKAGING, SUPPLY, BEVERAGE, OTHER]
+            quantity:
+              type: number
+            unit:
+              type: string
+              enum: [UNIT, LBS, OZ, KG, G, L, ML, GAL]
+            threshold:
+              type: number
+            reorderQuantity:
+              type: number
+            status:
+              type: string
+              enum: [IN_STOCK, LOW_STOCK, OUT_OF_STOCK, DISCONTINUED]
+            supplier:
+              type: object
+            cost:
+              type: object
+            lastRestocked:
+              type: string
+              format: date-time
+              nullable: true
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+        meta:
+          type: object
+
+    Driver:
+      type: object
+      required: [id, type, attributes]
+      properties:
+        id:
+          type: string
+          pattern: ^drv_[a-zA-Z0-9]+$
+        type:
+          type: string
+          enum: [driver]
+        attributes:
+          type: object
+          required: [storeId, name, phone, status, vehicle, createdAt, updatedAt]
+          properties:
+            storeId:
+              type: string
+            name:
+              type: string
+            phone:
+              type: string
+            email:
+              type: string
+              format: email
+            status:
+              type: string
+              enum: [ONLINE, OFFLINE, BUSY, ON_BREAK, INACTIVE]
+            vehicle:
+              $ref: '#/components/schemas/Vehicle'
+            location:
+              $ref: '#/components/schemas/Location'
+            metrics:
+              $ref: '#/components/schemas/DriverMetrics'
+            currentOrderId:
+              type: string
+              nullable: true
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+        meta:
+          type: object
+
+    Staff:
+      type: object
+      required: [id, type, attributes]
+      properties:
+        id:
+          type: string
+          pattern: ^staff_[a-zA-Z0-9]+$
+        type:
+          type: string
+          enum: [staff]
+        attributes:
+          type: object
+          required: [name, email, roles, status, createdAt, updatedAt]
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+              format: email
+            phone:
+              type: string
+            roles:
+              type: array
+              items:
+                $ref: '#/components/schemas/StaffRole'
+            storeIds:
+              type: array
+              items:
+                type: string
+            status:
+              type: string
+              enum: [ACTIVE, INACTIVE, SUSPENDED]
+            lastLogin:
+              type: string
+              format: date-time
+              nullable: true
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+        meta:
+          type: object
+
+    Policy:
+      type: object
+      required: [id, type, attributes]
+      properties:
+        id:
+          type: string
+          pattern: ^pol_[a-zA-Z0-9]+$
+        type:
+          type: string
+          enum: [policy]
+        attributes:
+          type: object
+          required: [name, version, category, content, status, effectiveDate, createdAt, updatedAt]
+          properties:
+            name:
+              type: string
+            version:
+              type: string
+              pattern: ^\d+\.\d+\.\d+$
+            category:
+              type: string
+              enum: [DATA_PRIVACY, FOOD_SAFETY, HEALTH_REGULATIONS, LABOR_COMPLIANCE, FINANCIAL_CONTROLS, OPERATIONAL_STANDARDS, SECURITY, OTHER]
+            content:
+              type: string
+            summary:
+              type: string
+            status:
+              type: string
+              enum: [DRAFT, ACTIVE, ARCHIVED, DEPRECATED]
+            effectiveDate:
+              type: string
+              format: date-time
+            expirationDate:
+              type: string
+              format: date-time
+              nullable: true
+            approvedBy:
+              type: string
+            approvedAt:
+              type: string
+              format: date-time
+              nullable: true
+            tags:
+              type: array
+              items:
+                type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+        meta:
+          type: object
+
+    RiskEvent:
+      type: object
+      required: [id, type, attributes]
+      properties:
+        id:
+          type: string
+          pattern: ^risk_[a-zA-Z0-9]+$
+        type:
+          type: string
+          enum: [riskEvent]
+        attributes:
+          type: object
+          required: [severity, status, category, entityType, entityId, title, description, createdAt, updatedAt]
+          properties:
+            severity:
+              type: string
+              enum: [LOW, MEDIUM, HIGH, CRITICAL]
+            status:
+              type: string
+              enum: [OPEN, IN_REVIEW, MITIGATED, RESOLVED, ESCALATED]
+            category:
+              type: string
+              enum: [FRAUD, FOOD_SAFETY, OPERATIONAL, FINANCIAL, REPUTATIONAL, COMPLIANCE, SECURITY, OTHER]
+            entityType:
+              type: string
+            entityId:
+              type: string
+            title:
+              type: string
+            description:
+              type: string
+            indicators:
+              type: array
+              items:
+                type: object
+            mitigationSteps:
+              type: array
+              items:
+                type: object
+            detectedBy:
+              type: string
+            assignedTo:
+              type: string
+              nullable: true
+            resolvedBy:
+              type: string
+              nullable: true
+            resolvedAt:
+              type: string
+              format: date-time
+              nullable: true
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+        meta:
+          type: object
+
+    ComplianceEvent:
+      type: object
+      required: [id, type, attributes, meta]
+      properties:
+        id:
+          type: string
+          pattern: ^comp_[a-zA-Z0-9]+$
+        type:
+          type: string
+          enum: [complianceEvent]
+        attributes:
+          type: object
+          required: [eventType, actorId, actorType, entityType, entityId, action, timestamp]
+          properties:
+            eventType:
+              type: string
+            actorId:
+              type: string
+            actorType:
+              type: string
+              enum: [STAFF, SYSTEM, API, CUSTOMER]
+            entityType:
+              type: string
+            entityId:
+              type: string
+            action:
+              type: string
+            metadata:
+              type: object
+            ipAddress:
+              type: string
+              nullable: true
+            userAgent:
+              type: string
+              nullable: true
+            timestamp:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+        meta:
+          type: object
+          required: [immutable]
+          properties:
+            immutable:
+              type: boolean
+              enum: [true]
+
+    Metric:
+      type: object
+      required: [id, type, attributes]
+      properties:
+        id:
+          type: string
+          pattern: ^metric_[a-zA-Z0-9]+$
+        type:
+          type: string
+          enum: [metric]
+        attributes:
+          type: object
+          required: [metricType, value, unit, dimension, period, createdAt]
+          properties:
+            storeId:
+              type: string
+              nullable: true
+            metricType:
+              type: string
+              enum: [ACTIVE_ORDERS, AVG_PREP_TIME, OUT_FOR_DELIVERY, STOCKOUTS, REVENUE, ORDER_COUNT, CUSTOMER_SATISFACTION, DRIVER_UTILIZATION, DELIVERY_TIME_AVG]
+            value:
+              type: number
+            unit:
+              type: string
+              enum: [COUNT, MINUTES, HOURS, PERCENTAGE, CURRENCY, RATIO]
+            dimension:
+              type: string
+              enum: [REALTIME, HOURLY, DAILY, WEEKLY, MONTHLY]
+            period:
+              type: object
+              required: [start, end]
+              properties:
+                start:
+                  type: string
+                  format: date-time
+                end:
+                  type: string
+                  format: date-time
+            trend:
+              type: object
+            createdAt:
+              type: string
+              format: date-time
+        relationships:
+          type: object
+        meta:
+          type: object
+
+    # Nested/Supporting Schemas
+    Address:
+      type: object
+      required: [street, city, state, zip, country]
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        instructions:
+          type: string
+
+    OrderStatus:
+      type: string
+      enum:
+        - PLACED
+        - CONFIRMED
+        - IN_PREP
+        - READY
+        - ASSIGNED
+        - PICKED_UP
+        - OUT_FOR_DELIVERY
+        - DELIVERED
+        - CANCELLED
+        - FAILED
+
+    OrderItem:
+      type: object
+      required: [id, sku, name, quantity, unitPrice, subtotal]
+      properties:
+        id:
+          type: string
+        sku:
+          type: string
+        name:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        unitPrice:
+          type: number
+        subtotal:
+          type: number
+        modifiers:
+          type: array
+          items:
+            type: object
+
+    OrderPricing:
+      type: object
+      required: [subtotal, tax, deliveryFee, total]
+      properties:
+        subtotal:
+          type: number
+        tax:
+          type: number
+        deliveryFee:
+          type: number
+        tip:
+          type: number
+        discount:
+          type: number
+        total:
+          type: number
+
+    OrderDelivery:
+      type: object
+      required: [address]
+      properties:
+        address:
+          $ref: '#/components/schemas/Address'
+        driverId:
+          type: string
+          nullable: true
+        estimatedDeliveryTime:
+          type: string
+          format: date-time
+        actualDeliveryTime:
+          type: string
+          format: date-time
+          nullable: true
+
+    CustomerInfo:
+      type: object
+      required: [name, phone]
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+
+    OrderRisk:
+      type: object
+      properties:
+        score:
+          type: number
+        level:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+        flags:
+          type: array
+          items:
+            type: string
+
+    OrderTimestamps:
+      type: object
+      required: [placedAt]
+      properties:
+        placedAt:
+          type: string
+          format: date-time
+        confirmedAt:
+          type: string
+          format: date-time
+          nullable: true
+        readyAt:
+          type: string
+          format: date-time
+          nullable: true
+        pickedUpAt:
+          type: string
+          format: date-time
+          nullable: true
+        deliveredAt:
+          type: string
+          format: date-time
+          nullable: true
+        cancelledAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    Vehicle:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [CAR, BIKE, MOTORCYCLE, SCOOTER, WALK]
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        licensePlate:
+          type: string
+        color:
+          type: string
+
+    Location:
+      type: object
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+        lastUpdated:
+          type: string
+          format: date-time
+
+    DriverMetrics:
+      type: object
+      properties:
+        totalDeliveries:
+          type: integer
+        rating:
+          type: number
+        totalRatings:
+          type: integer
+        onTimePercentage:
+          type: number
+
+    StaffRole:
+      type: string
+      enum:
+        - SUPER_ADMIN
+        - COMPLIANCE_OFFICER
+        - RISK_MANAGER
+        - STORE_MANAGER
+        - ASSISTANT_MANAGER
+        - KITCHEN_MANAGER
+        - KITCHEN_STAFF
+        - CASHIER
+        - DISPATCHER
+        - DRIVER_COORDINATOR
+        - CUSTOMER_SERVICE
+        - INVENTORY_MANAGER
+        - VIEWER
+
+    # Request Schemas
+    CreateStoreRequest:
+      type: object
+      required: [name, address, status]
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        phone:
+          type: string
+        email:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, MAINTENANCE]
+        operatingHours:
+          type: object
+
+    UpdateStoreRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        phone:
+          type: string
+        email:
+          type: string
+        status:
+          type: string
+        operatingHours:
+          type: object
+
+    CreateOrderRequest:
+      type: object
+      required: [storeId, customerId, items, delivery, customer]
+      properties:
+        storeId:
+          type: string
+        customerId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        delivery:
+          $ref: '#/components/schemas/OrderDelivery'
+        customer:
+          $ref: '#/components/schemas/CustomerInfo'
+
+    UpdateOrderRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        delivery:
+          $ref: '#/components/schemas/OrderDelivery'
+
+    CreateInventoryItemRequest:
+      type: object
+      required: [storeId, sku, name, category, quantity, unit, threshold]
+      properties:
+        storeId:
+          type: string
+        sku:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        threshold:
+          type: number
+        reorderQuantity:
+          type: number
+
+    UpdateInventoryItemRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        quantity:
+          type: number
+        threshold:
+          type: number
+        status:
+          type: string
+
+    CreateDriverRequest:
+      type: object
+      required: [storeId, name, phone, vehicle]
+      properties:
+        storeId:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        vehicle:
+          $ref: '#/components/schemas/Vehicle'
+
+    UpdateDriverRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        status:
+          type: string
+        vehicle:
+          $ref: '#/components/schemas/Vehicle'
+
+    CreateStaffRequest:
+      type: object
+      required: [name, email, roles]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffRole'
+        storeIds:
+          type: array
+          items:
+            type: string
+
+    UpdateStaffRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffRole'
+        storeIds:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+
+    CreatePolicyRequest:
+      type: object
+      required: [name, version, category, content, effectiveDate]
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        category:
+          type: string
+        content:
+          type: string
+        summary:
+          type: string
+        effectiveDate:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+
+    UpdatePolicyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        content:
+          type: string
+        summary:
+          type: string
+        status:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    CreateRiskEventRequest:
+      type: object
+      required: [severity, category, entityType, entityId, title, description]
+      properties:
+        severity:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+        category:
+          type: string
+        entityType:
+          type: string
+        entityId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        indicators:
+          type: array
+          items:
+            type: object
+
+    UpdateRiskEventRequest:
+      type: object
+      properties:
+        severity:
+          type: string
+        status:
+          type: string
+        assignedTo:
+          type: string
+        mitigationSteps:
+          type: array
+          items:
+            type: object
+
+    CreateComplianceEventRequest:
+      type: object
+      required: [eventType, entityType, entityId, action]
+      properties:
+        eventType:
+          type: string
+        entityType:
+          type: string
+        entityId:
+          type: string
+        action:
+          type: string
+        metadata:
+          type: object
+
+    # Common Schemas
+    PaginationMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+
+security:
+  - bearerAuth: []

@@ -1,0 +1,157 @@
+service: glenkeos-orders-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'staging'}
+  memorySize: 512
+  timeout: 30
+  
+  environment:
+    DB_HOST: ${ssm:/glenkeos/${self:provider.stage}/db/host}
+    DB_PORT: ${ssm:/glenkeos/${self:provider.stage}/db/port}
+    DB_NAME: ${ssm:/glenkeos/${self:provider.stage}/db/name}
+    DB_USER: ${ssm:/glenkeos/${self:provider.stage}/db/user}
+    DB_PASSWORD: ${ssm:/glenkeos/${self:provider.stage}/db/password~true}
+    EVENT_BUS_NAME: glenkeos-${self:provider.stage}-bus
+    SERVICE_NAME: orders-service
+    STAGE: ${self:provider.stage}
+  
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource: 
+            - arn:aws:events:${self:provider.region}:*:event-bus/glenkeos-${self:provider.stage}-bus
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+          Resource:
+            - arn:aws:ssm:${self:provider.region}:*:parameter/glenkeos/${self:provider.stage}/*
+
+functions:
+  createOrder:
+    handler: src/handlers/orders.createOrder
+    events:
+      - http:
+          path: /orders
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  getOrders:
+    handler: src/handlers/orders.getOrders
+    events:
+      - http:
+          path: /orders
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  getOrder:
+    handler: src/handlers/orders.getOrder
+    events:
+      - http:
+          path: /orders/{orderId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  updateOrder:
+    handler: src/handlers/orders.updateOrder
+    events:
+      - http:
+          path: /orders/{orderId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  updateOrderStatus:
+    handler: src/handlers/orders.updateOrderStatus
+    events:
+      - http:
+          path: /orders/{orderId}/status
+          method: patch
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  getCustomerOrders:
+    handler: src/handlers/orders.getCustomerOrders
+    events:
+      - http:
+          path: /customers/{customerId}/orders
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId:
+              Ref: ApiGatewayAuthorizer
+
+  # Event consumers
+  handlePaymentCompleted:
+    handler: src/handlers/consumers.handlePaymentCompleted
+    events:
+      - eventBridge:
+          eventBus: arn:aws:events:${self:provider.region}:*:event-bus/glenkeos-${self:provider.stage}-bus
+          pattern:
+            source:
+              - payments-service
+            detail-type:
+              - PAYMENT_COMPLETED
+
+  handleInventoryUpdated:
+    handler: src/handlers/consumers.handleInventoryUpdated
+    events:
+      - eventBridge:
+          eventBus: arn:aws:events:${self:provider.region}:*:event-bus/glenkeos-${self:provider.stage}-bus
+          pattern:
+            source:
+              - inventory-service
+            detail-type:
+              - ITEM_UNAVAILABLE
+
+resources:
+  Resources:
+    ApiGatewayAuthorizer:
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: CognitoAuthorizer
+        Type: COGNITO_USER_POOLS
+        IdentitySource: method.request.header.Authorization
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ProviderARNs:
+          - ${ssm:/glenkeos/${self:provider.stage}/cognito/user-pool-arn}
+
+plugins:
+  - serverless-esbuild
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: true
+    target: node18
+    exclude:
+      - aws-sdk
+      - pg-native

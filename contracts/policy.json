@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Policy",
+  "description": "Governance and compliance policy",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^pol_[a-zA-Z0-9]+$",
+      "description": "Unique policy identifier"
+    },
+    "type": {
+      "type": "string",
+      "const": "policy"
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "DATA_PRIVACY",
+            "FOOD_SAFETY",
+            "HEALTH_REGULATIONS",
+            "LABOR_COMPLIANCE",
+            "FINANCIAL_CONTROLS",
+            "OPERATIONAL_STANDARDS",
+            "SECURITY",
+            "OTHER"
+          ]
+        },
+        "content": {
+          "type": "string",
+          "description": "Full policy text or markdown"
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "status": {
+          "type": "string",
+          "enum": ["DRAFT", "ACTIVE", "ARCHIVED", "DEPRECATED"]
+        },
+        "effectiveDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expirationDate": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "approvedBy": {
+          "type": "string",
+          "pattern": "^staff_[a-zA-Z0-9]+$"
+        },
+        "approvedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "category",
+        "content",
+        "status",
+        "effectiveDate",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "previousVersion": {
+          "type": ["string", "null"],
+          "pattern": "^pol_[a-zA-Z0-9]+$"
+        },
+        "approver": {
+          "type": ["string", "null"],
+          "pattern": "^staff_[a-zA-Z0-9]+$"
+        }
+      }
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "required": ["id", "type", "attributes"]
+}

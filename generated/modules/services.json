@@ -1,0 +1,157 @@
+{
+  "services": [
+    {
+      "name": "stores",
+      "domain": "Stores",
+      "description": "Store locations and operational configuration",
+      "ownsTables": ["stores"],
+      "producesEvents": ["STORE_CREATED", "STORE_UPDATED"],
+      "consumesEvents": [],
+      "apiGroup": "stores",
+      "port": 8001,
+      "healthCheck": "/health"
+    },
+    {
+      "name": "orders",
+      "domain": "Orders",
+      "description": "Order lifecycle, status, and driver assignment",
+      "ownsTables": ["orders", "order_items"],
+      "producesEvents": [
+        "ORDER_CREATED",
+        "ORDER_STATUS_CHANGED",
+        "ORDER_ASSIGNED",
+        "ORDER_CANCELLED",
+        "ORDER_DELIVERED"
+      ],
+      "consumesEvents": [
+        "DRIVER_ASSIGNED",
+        "INVENTORY_UPDATED",
+        "INVENTORY_LOW_STOCK"
+      ],
+      "apiGroup": "orders",
+      "port": 8002,
+      "healthCheck": "/health"
+    },
+    {
+      "name": "inventory",
+      "domain": "Inventory",
+      "description": "Inventory levels, low stock alerts, reorder triggers",
+      "ownsTables": ["inventory"],
+      "producesEvents": [
+        "INVENTORY_UPDATED",
+        "INVENTORY_LOW_STOCK",
+        "INVENTORY_REORDER_TRIGGERED",
+        "INVENTORY_RECEIVED"
+      ],
+      "consumesEvents": ["ORDER_CREATED"],
+      "apiGroup": "inventory",
+      "port": 8003,
+      "healthCheck": "/health"
+    },
+    {
+      "name": "drivers",
+      "domain": "Drivers",
+      "description": "Driver identity, status, assignments, and location",
+      "ownsTables": ["drivers"],
+      "producesEvents": [
+        "DRIVER_ASSIGNED",
+        "DRIVER_STATUS_CHANGED",
+        "DRIVER_LOCATION_UPDATED",
+        "DRIVER_RATING_UPDATED"
+      ],
+      "consumesEvents": ["ORDER_ASSIGNED"],
+      "apiGroup": "drivers",
+      "port": 8004,
+      "healthCheck": "/health"
+    },
+    {
+      "name": "staff",
+      "domain": "Staff",
+      "description": "Staff identity, roles, sessions, and store assignments",
+      "ownsTables": ["staff", "sessions", "roles", "store_assignments"],
+      "producesEvents": [
+        "STAFF_CREATED",
+        "STAFF_ROLE_CHANGED",
+        "STAFF_SESSION_STARTED",
+        "STAFF_SESSION_ENDED",
+        "STAFF_DELETED"
+      ],
+      "consumesEvents": ["POLICY_UPDATED"],
+      "apiGroup": "staff",
+      "port": 8005,
+      "healthCheck": "/health"
+    },
+    {
+      "name": "policies",
+      "domain": "Policies",
+      "description": "Policy definitions, versions, and acknowledgments",
+      "ownsTables": ["policies", "policy_acknowledgments"],
+      "producesEvents": [
+        "POLICY_CREATED",
+        "POLICY_UPDATED",
+        "POLICY_ACKNOWLEDGED"
+      ],
+      "consumesEvents": ["STAFF_ROLE_CHANGED"],
+      "apiGroup": "policies",
+      "port": 8006,
+      "healthCheck": "/health"
+    },
+    {
+      "name": "risk",
+      "domain": "Risk",
+      "description": "Risk events, escalation, mitigation, and closure",
+      "ownsTables": ["risk_events"],
+      "producesEvents": [
+        "RISK_EVENT_CREATED",
+        "RISK_EVENT_ESCALATED",
+        "RISK_EVENT_MITIGATED",
+        "RISK_EVENT_CLOSED"
+      ],
+      "consumesEvents": [
+        "ORDER_CREATED",
+        "STAFF_ROLE_CHANGED",
+        "COMPLIANCE_VIOLATION_DETECTED"
+      ],
+      "apiGroup": "risk-events",
+      "port": 8007,
+      "healthCheck": "/health"
+    },
+    {
+      "name": "compliance",
+      "domain": "Compliance",
+      "description": "Compliance violations, reports, and audit trail",
+      "ownsTables": ["compliance_events"],
+      "producesEvents": [
+        "COMPLIANCE_VIOLATION_DETECTED",
+        "COMPLIANCE_REPORT_GENERATED",
+        "DATA_EXPORT_REQUESTED",
+        "ACCESS_DENIED"
+      ],
+      "consumesEvents": [
+        "ORDER_CREATED",
+        "STAFF_ROLE_CHANGED",
+        "POLICY_ACKNOWLEDGED",
+        "RISK_EVENT_CREATED"
+      ],
+      "apiGroup": "compliance-events",
+      "port": 8008,
+      "healthCheck": "/health"
+    },
+    {
+      "name": "metrics",
+      "domain": "Metrics",
+      "description": "Operational and business metrics aggregation and querying",
+      "ownsTables": ["metrics"],
+      "producesEvents": [],
+      "consumesEvents": [
+        "ORDER_CREATED",
+        "ORDER_DELIVERED",
+        "RISK_EVENT_CREATED",
+        "COMPLIANCE_VIOLATION_DETECTED"
+      ],
+      "apiGroup": "metrics",
+      "port": 8009,
+      "healthCheck": "/health"
+    }
+  ]
+}

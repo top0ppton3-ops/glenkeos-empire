@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "RiskEvents",
+  "description": "Domain events for risk management",
+  "definitions": {
+    "RISK_EVENT_CREATED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "RISK_EVENT_CREATED" },
+        "entityType": { "const": "riskEvent" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "severity": { "type": "string" },
+            "category": { "type": "string" },
+            "relatedEntityType": { "type": "string" },
+            "relatedEntityId": { "type": "string" },
+            "detectedBy": { "type": "string" }
+          },
+          "required": ["severity", "category", "relatedEntityType", "relatedEntityId"]
+        }
+      }
+    },
+    "RISK_EVENT_UPDATED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "RISK_EVENT_UPDATED" },
+        "entityType": { "const": "riskEvent" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "oldStatus": { "type": "string" },
+            "newStatus": { "type": "string" },
+            "oldSeverity": { "type": "string" },
+            "newSeverity": { "type": "string" }
+          },
+          "required": ["oldStatus", "newStatus"]
+        }
+      }
+    },
+    "RISK_EVENT_ASSIGNED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "RISK_EVENT_ASSIGNED" },
+        "entityType": { "const": "riskEvent" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "assignedTo": { "type": "string" },
+            "assignedBy": { "type": "string" }
+          },
+          "required": ["assignedTo", "assignedBy"]
+        }
+      }
+    },
+    "RISK_EVENT_RESOLVED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "RISK_EVENT_RESOLVED" },
+        "entityType": { "const": "riskEvent" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "resolvedBy": { "type": "string" },
+            "resolutionSummary": { "type": "string" },
+            "mitigationActions": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["resolvedBy", "resolutionSummary"]
+        }
+      }
+    }
+  }
+}

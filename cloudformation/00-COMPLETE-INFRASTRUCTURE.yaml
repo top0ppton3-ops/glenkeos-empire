@@ -1,0 +1,664 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'GlenKeos Complete Infrastructure Stack - VPC, RDS, EventBridge, Cognito, CloudWatch'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - development
+      - staging
+      - production
+    Description: Deployment environment
+
+  DBMasterUsername:
+    Type: String
+    Default: glenkeos_admin
+    Description: Master username for RDS PostgreSQL
+    
+  DBMasterPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 16
+    Description: Master password for RDS PostgreSQL (min 16 characters)
+
+  MultiAZ:
+    Type: String
+    Default: 'false'
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Description: Enable Multi-AZ deployment for RDS
+
+  DBInstanceClass:
+    Type: String
+    Default: db.t3.medium
+    AllowedValues:
+      - db.t3.micro
+      - db.t3.small
+      - db.t3.medium
+      - db.t3.large
+      - db.r5.large
+      - db.r5.xlarge
+    Description: RDS instance class
+
+Conditions:
+  IsProduction: !Equals [!Ref Environment, production]
+
+Resources:
+  # ================================================================
+  # VPC AND NETWORKING
+  # ================================================================
+  
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-vpc
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Public Subnets
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-public-subnet-1
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-public-subnet-2
+
+  # Private Subnets for RDS
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: 10.0.11.0/24
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-private-subnet-1
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: 10.0.12.0/24
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-private-subnet-2
+
+  # Internet Gateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-igw
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # NAT Gateway
+  NATGatewayEIP:
+    Type: AWS::EC2::EIP
+    DependsOn: AttachGateway
+    Properties:
+      Domain: vpc
+
+  NATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NATGatewayEIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-nat
+
+  # Route Tables
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-public-rt
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-private-rt
+
+  DefaultPrivateRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet1
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet2
+
+  # ================================================================
+  # SECURITY GROUPS
+  # ================================================================
+  
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Lambda functions
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-lambda-sg
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for RDS PostgreSQL
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref LambdaSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-rds-sg
+
+  # ================================================================
+  # RDS POSTGRESQL
+  # ================================================================
+  
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for GlenKeos RDS
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-db-subnet-group
+
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    Properties:
+      DBInstanceIdentifier: !Sub glenkeos-${Environment}-db
+      Engine: postgres
+      EngineVersion: '14.7'
+      DBInstanceClass: !Ref DBInstanceClass
+      AllocatedStorage: '100'
+      MaxAllocatedStorage: !If [IsProduction, 1000, 500]
+      StorageType: gp3
+      StorageEncrypted: true
+      MultiAZ: !Ref MultiAZ
+      DBName: glenkeos
+      MasterUsername: !Ref DBMasterUsername
+      MasterUserPassword: !Ref DBMasterPassword
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      VPCSecurityGroups:
+        - !Ref RDSSecurityGroup
+      BackupRetentionPeriod: !If [IsProduction, 30, 7]
+      PreferredBackupWindow: '03:00-04:00'
+      PreferredMaintenanceWindow: 'sun:04:00-sun:05:00'
+      EnableCloudwatchLogsExports:
+        - postgresql
+      EnablePerformanceInsights: !If [IsProduction, true, false]
+      PerformanceInsightsRetentionPeriod: !If [IsProduction, 731, 7]
+      DeletionProtection: !If [IsProduction, true, false]
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-db
+        - Key: Environment
+          Value: !Ref Environment
+
+  # ================================================================
+  # EVENTBRIDGE
+  # ================================================================
+  
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: !Sub glenkeos-${Environment}-bus
+
+  EventBusPolicy:
+    Type: AWS::Events::EventBusPolicy
+    Properties:
+      EventBusName: !Ref EventBus
+      StatementId: AllowAccountToPublish
+      Statement:
+        Effect: Allow
+        Principal:
+          AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+        Action:
+          - events:PutEvents
+        Resource: !GetAtt EventBus.Arn
+
+  # Dead Letter Queue for failed events
+  EventDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub glenkeos-${Environment}-event-dlq
+      MessageRetentionPeriod: 1209600  # 14 days
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-event-dlq
+
+  # Event Archive
+  EventArchive:
+    Type: AWS::Events::Archive
+    Properties:
+      ArchiveName: !Sub glenkeos-${Environment}-archive
+      SourceArn: !GetAtt EventBus.Arn
+      Description: Archive for all GlenKeos events
+      RetentionDays: !If [IsProduction, 365, 90]
+
+  # ================================================================
+  # COGNITO USER POOLS
+  # ================================================================
+  
+  # Customer User Pool
+  CustomerUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub glenkeos-${Environment}-customers
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: false
+        - Name: phone_number
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      MfaConfiguration: OPTIONAL
+      EnabledMfas:
+        - SOFTWARE_TOKEN_MFA
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      UserPoolTags:
+        Environment: !Ref Environment
+
+  CustomerUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub glenkeos-${Environment}-customer-client
+      UserPoolId: !Ref CustomerUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+      RefreshTokenValidity: 30
+      AccessTokenValidity: 1
+      IdTokenValidity: 1
+      TokenValidityUnits:
+        RefreshToken: days
+        AccessToken: hours
+        IdToken: hours
+
+  # Staff User Pool
+  StaffUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub glenkeos-${Environment}-staff
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Required: true
+          Mutable: false
+        - Name: custom:role
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+        - Name: custom:store_id
+          AttributeDataType: String
+          Required: false
+          Mutable: true
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 12
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      MfaConfiguration: REQUIRED
+      EnabledMfas:
+        - SOFTWARE_TOKEN_MFA
+      UserPoolTags:
+        Environment: !Ref Environment
+
+  StaffUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub glenkeos-${Environment}-staff-client
+      UserPoolId: !Ref StaffUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+
+  # Admin User Pool
+  AdminUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub glenkeos-${Environment}-admin
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 16
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      MfaConfiguration: REQUIRED
+      EnabledMfas:
+        - SOFTWARE_TOKEN_MFA
+      UserPoolTags:
+        Environment: !Ref Environment
+
+  AdminUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub glenkeos-${Environment}-admin-client
+      UserPoolId: !Ref AdminUserPool
+      GenerateSecret: true
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+
+  # ================================================================
+  # CLOUDWATCH LOG GROUPS
+  # ================================================================
+  
+  APIGatewayLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/apigateway/glenkeos-${Environment}
+      RetentionInDays: !If [IsProduction, 90, 30]
+
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/glenkeos-${Environment}
+      RetentionInDays: !If [IsProduction, 90, 30]
+
+  EventBridgeLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/events/glenkeos-${Environment}
+      RetentionInDays: !If [IsProduction, 90, 30]
+
+  # ================================================================
+  # CLOUDWATCH ALARMS
+  # ================================================================
+  
+  RDSHighCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub glenkeos-${Environment}-rds-high-cpu
+      AlarmDescription: RDS CPU utilization is too high
+      MetricName: CPUUtilization
+      Namespace: AWS/RDS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !Ref RDSInstance
+
+  RDSLowStorageAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub glenkeos-${Environment}-rds-low-storage
+      AlarmDescription: RDS free storage space is low
+      MetricName: FreeStorageSpace
+      Namespace: AWS/RDS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 10737418240  # 10 GB
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !Ref RDSInstance
+
+  # ================================================================
+  # SSM PARAMETERS (for storing configuration)
+  # ================================================================
+  
+  DBHostParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /glenkeos/${Environment}/db/host
+      Type: String
+      Value: !GetAtt RDSInstance.Endpoint.Address
+      Description: RDS endpoint address
+
+  DBNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /glenkeos/${Environment}/db/name
+      Type: String
+      Value: glenkeos
+      Description: Database name
+
+  DBUserParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /glenkeos/${Environment}/db/user
+      Type: String
+      Value: !Ref DBMasterUsername
+      Description: Database username
+
+  DBPasswordParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /glenkeos/${Environment}/db/password
+      Type: SecureString
+      Value: !Ref DBMasterPassword
+      Description: Database password
+
+  EventBusNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /glenkeos/${Environment}/eventbus/name
+      Type: String
+      Value: !Ref EventBus
+      Description: EventBridge bus name
+
+  CustomerUserPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /glenkeos/${Environment}/cognito/customer-pool-id
+      Type: String
+      Value: !Ref CustomerUserPool
+
+  StaffUserPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /glenkeos/${Environment}/cognito/staff-pool-id
+      Type: String
+      Value: !Ref StaffUserPool
+
+  AdminUserPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /glenkeos/${Environment}/cognito/admin-pool-id
+      Type: String
+      Value: !Ref AdminUserPool
+
+Outputs:
+  VPCId:
+    Description: VPC ID
+    Value: !Ref VPC
+    Export:
+      Name: !Sub glenkeos-${Environment}-vpc-id
+
+  PublicSubnet1Id:
+    Description: Public Subnet 1 ID
+    Value: !Ref PublicSubnet1
+    Export:
+      Name: !Sub glenkeos-${Environment}-public-subnet-1
+
+  PublicSubnet2Id:
+    Description: Public Subnet 2 ID
+    Value: !Ref PublicSubnet2
+    Export:
+      Name: !Sub glenkeos-${Environment}-public-subnet-2
+
+  PrivateSubnet1Id:
+    Description: Private Subnet 1 ID
+    Value: !Ref PrivateSubnet1
+    Export:
+      Name: !Sub glenkeos-${Environment}-private-subnet-1
+
+  PrivateSubnet2Id:
+    Description: Private Subnet 2 ID
+    Value: !Ref PrivateSubnet2
+    Export:
+      Name: !Sub glenkeos-${Environment}-private-subnet-2
+
+  LambdaSecurityGroupId:
+    Description: Lambda Security Group ID
+    Value: !Ref LambdaSecurityGroup
+    Export:
+      Name: !Sub glenkeos-${Environment}-lambda-sg
+
+  DBEndpoint:
+    Description: RDS endpoint
+    Value: !GetAtt RDSInstance.Endpoint.Address
+    Export:
+      Name: !Sub glenkeos-${Environment}-db-endpoint
+
+  DBPort:
+    Description: RDS port
+    Value: !GetAtt RDSInstance.Endpoint.Port
+    Export:
+      Name: !Sub glenkeos-${Environment}-db-port
+
+  EventBusName:
+    Description: EventBridge bus name
+    Value: !Ref EventBus
+    Export:
+      Name: !Sub glenkeos-${Environment}-eventbus-name
+
+  EventBusArn:
+    Description: EventBridge bus ARN
+    Value: !GetAtt EventBus.Arn
+    Export:
+      Name: !Sub glenkeos-${Environment}-eventbus-arn
+
+  CustomerUserPoolId:
+    Description: Customer User Pool ID
+    Value: !Ref CustomerUserPool
+    Export:
+      Name: !Sub glenkeos-${Environment}-customer-pool-id
+
+  CustomerUserPoolClientId:
+    Description: Customer User Pool Client ID
+    Value: !Ref CustomerUserPoolClient
+    Export:
+      Name: !Sub glenkeos-${Environment}-customer-client-id
+
+  StaffUserPoolId:
+    Description: Staff User Pool ID
+    Value: !Ref StaffUserPool
+    Export:
+      Name: !Sub glenkeos-${Environment}-staff-pool-id
+
+  StaffUserPoolClientId:
+    Description: Staff User Pool Client ID
+    Value: !Ref StaffUserPoolClient
+    Export:
+      Name: !Sub glenkeos-${Environment}-staff-client-id
+
+  AdminUserPoolId:
+    Description: Admin User Pool ID
+    Value: !Ref AdminUserPool
+    Export:
+      Name: !Sub glenkeos-${Environment}-admin-pool-id
+
+  AdminUserPoolClientId:
+    Description: Admin User Pool Client ID
+    Value: !Ref AdminUserPoolClient
+    Export:
+      Name: !Sub glenkeos-${Environment}-admin-client-id

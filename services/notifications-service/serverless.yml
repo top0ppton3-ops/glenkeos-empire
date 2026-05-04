@@ -1,0 +1,76 @@
+service: glenkeos-notifications-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  environment:
+    STAGE: ${self:provider.stage}
+    DB_HOST: ${ssm:/glenkeos/${self:provider.stage}/db/host}
+    DB_NAME: ${ssm:/glenkeos/${self:provider.stage}/db/name}
+    DB_USER: ${ssm:/glenkeos/${self:provider.stage}/db/user}
+    DB_PASSWORD: ${ssm:/glenkeos/${self:provider.stage}/db/password~true}
+    EVENT_BUS_NAME: ${ssm:/glenkeos/${self:provider.stage}/eventbridge/bus-name}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - sns:Publish
+            - ses:SendEmail
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource: '*'
+
+functions:
+  sendTestNotification:
+    handler: src/handlers/sendTestNotification.handler
+    events:
+      - http:
+          path: /notifications/test
+          method: post
+          cors: true
+
+  getNotificationLogs:
+    handler: src/handlers/getNotificationLogs.handler
+    events:
+      - http:
+          path: /notifications/logs
+          method: get
+          cors: true
+
+  consumeOrderCreated:
+    handler: src/eventConsumers/consumeOrderEvents.handler
+    events:
+      - eventBridge:
+          eventBus: ${ssm:/glenkeos/${self:provider.stage}/eventbridge/bus-name}
+          pattern:
+            source:
+              - orders-service
+            detail-type:
+              - ORDER_CREATED
+              - ORDER_OUT_FOR_DELIVERY
+              - ORDER_COMPLETED
+
+  consumePaymentEvents:
+    handler: src/eventConsumers/consumePaymentEvents.handler
+    events:
+      - eventBridge:
+          eventBus: ${ssm:/glenkeos/${self:provider.stage}/eventbridge/bus-name}
+          pattern:
+            source:
+              - payments-service
+            detail-type:
+              - PAYMENT_COMPLETED
+              - PAYMENT_FAILED
+
+plugins:
+  - serverless-offline
+
+package:
+  individually: true

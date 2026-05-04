@@ -1,0 +1,228 @@
+{
+  "topicPrefix": "glenkeos",
+  "topicNamingConvention": "{topicPrefix}.{tenantId}.{eventName}",
+  "dlqNamingConvention": "{topicPrefix}.{tenantId}.{eventName}.dlq",
+  "retentionDays": 7,
+  "partitions": 3,
+  "replicationFactor": 3,
+
+  "topics": [
+    {
+      "event": "STORE_CREATED",
+      "topic": "glenkeos.{tenantId}.store-created",
+      "producer": "stores",
+      "consumers": [],
+      "dlq": "glenkeos.{tenantId}.store-created.dlq"
+    },
+    {
+      "event": "STORE_UPDATED",
+      "topic": "glenkeos.{tenantId}.store-updated",
+      "producer": "stores",
+      "consumers": [],
+      "dlq": "glenkeos.{tenantId}.store-updated.dlq"
+    },
+    {
+      "event": "ORDER_CREATED",
+      "topic": "glenkeos.{tenantId}.order-created",
+      "producer": "orders",
+      "consumers": ["inventory", "compliance", "metrics"],
+      "dlq": "glenkeos.{tenantId}.order-created.dlq"
+    },
+    {
+      "event": "ORDER_STATUS_CHANGED",
+      "topic": "glenkeos.{tenantId}.order-status-changed",
+      "producer": "orders",
+      "consumers": ["compliance", "metrics"],
+      "dlq": "glenkeos.{tenantId}.order-status-changed.dlq"
+    },
+    {
+      "event": "ORDER_ASSIGNED",
+      "topic": "glenkeos.{tenantId}.order-assigned",
+      "producer": "orders",
+      "consumers": ["drivers", "compliance"],
+      "dlq": "glenkeos.{tenantId}.order-assigned.dlq"
+    },
+    {
+      "event": "ORDER_CANCELLED",
+      "topic": "glenkeos.{tenantId}.order-cancelled",
+      "producer": "orders",
+      "consumers": ["inventory", "compliance", "metrics"],
+      "dlq": "glenkeos.{tenantId}.order-cancelled.dlq"
+    },
+    {
+      "event": "ORDER_DELIVERED",
+      "topic": "glenkeos.{tenantId}.order-delivered",
+      "producer": "orders",
+      "consumers": ["metrics", "compliance"],
+      "dlq": "glenkeos.{tenantId}.order-delivered.dlq"
+    },
+    {
+      "event": "INVENTORY_UPDATED",
+      "topic": "glenkeos.{tenantId}.inventory-updated",
+      "producer": "inventory",
+      "consumers": ["orders", "metrics"],
+      "dlq": "glenkeos.{tenantId}.inventory-updated.dlq"
+    },
+    {
+      "event": "INVENTORY_LOW_STOCK",
+      "topic": "glenkeos.{tenantId}.inventory-low-stock",
+      "producer": "inventory",
+      "consumers": ["stores", "compliance"],
+      "dlq": "glenkeos.{tenantId}.inventory-low-stock.dlq"
+    },
+    {
+      "event": "INVENTORY_REORDER_TRIGGERED",
+      "topic": "glenkeos.{tenantId}.inventory-reorder-triggered",
+      "producer": "inventory",
+      "consumers": ["stores", "metrics"],
+      "dlq": "glenkeos.{tenantId}.inventory-reorder-triggered.dlq"
+    },
+    {
+      "event": "INVENTORY_RECEIVED",
+      "topic": "glenkeos.{tenantId}.inventory-received",
+      "producer": "inventory",
+      "consumers": ["metrics"],
+      "dlq": "glenkeos.{tenantId}.inventory-received.dlq"
+    },
+    {
+      "event": "DRIVER_ASSIGNED",
+      "topic": "glenkeos.{tenantId}.driver-assigned",
+      "producer": "drivers",
+      "consumers": ["orders", "compliance"],
+      "dlq": "glenkeos.{tenantId}.driver-assigned.dlq"
+    },
+    {
+      "event": "DRIVER_STATUS_CHANGED",
+      "topic": "glenkeos.{tenantId}.driver-status-changed",
+      "producer": "drivers",
+      "consumers": ["metrics"],
+      "dlq": "glenkeos.{tenantId}.driver-status-changed.dlq"
+    },
+    {
+      "event": "DRIVER_LOCATION_UPDATED",
+      "topic": "glenkeos.{tenantId}.driver-location-updated",
+      "producer": "drivers",
+      "consumers": ["metrics"],
+      "dlq": "glenkeos.{tenantId}.driver-location-updated.dlq"
+    },
+    {
+      "event": "DRIVER_RATING_UPDATED",
+      "topic": "glenkeos.{tenantId}.driver-rating-updated",
+      "producer": "drivers",
+      "consumers": ["metrics"],
+      "dlq": "glenkeos.{tenantId}.driver-rating-updated.dlq"
+    },
+    {
+      "event": "STAFF_CREATED",
+      "topic": "glenkeos.{tenantId}.staff-created",
+      "producer": "staff",
+      "consumers": ["compliance"],
+      "dlq": "glenkeos.{tenantId}.staff-created.dlq"
+    },
+    {
+      "event": "STAFF_ROLE_CHANGED",
+      "topic": "glenkeos.{tenantId}.staff-role-changed",
+      "producer": "staff",
+      "consumers": ["policies", "risk", "compliance"],
+      "dlq": "glenkeos.{tenantId}.staff-role-changed.dlq"
+    },
+    {
+      "event": "STAFF_SESSION_STARTED",
+      "topic": "glenkeos.{tenantId}.staff-session-started",
+      "producer": "staff",
+      "consumers": ["compliance"],
+      "dlq": "glenkeos.{tenantId}.staff-session-started.dlq"
+    },
+    {
+      "event": "STAFF_SESSION_ENDED",
+      "topic": "glenkeos.{tenantId}.staff-session-ended",
+      "producer": "staff",
+      "consumers": ["compliance"],
+      "dlq": "glenkeos.{tenantId}.staff-session-ended.dlq"
+    },
+    {
+      "event": "STAFF_DELETED",
+      "topic": "glenkeos.{tenantId}.staff-deleted",
+      "producer": "staff",
+      "consumers": ["compliance"],
+      "dlq": "glenkeos.{tenantId}.staff-deleted.dlq"
+    },
+    {
+      "event": "POLICY_CREATED",
+      "topic": "glenkeos.{tenantId}.policy-created",
+      "producer": "policies",
+      "consumers": ["staff", "compliance"],
+      "dlq": "glenkeos.{tenantId}.policy-created.dlq"
+    },
+    {
+      "event": "POLICY_UPDATED",
+      "topic": "glenkeos.{tenantId}.policy-updated",
+      "producer": "policies",
+      "consumers": ["staff", "compliance"],
+      "dlq": "glenkeos.{tenantId}.policy-updated.dlq"
+    },
+    {
+      "event": "POLICY_ACKNOWLEDGED",
+      "topic": "glenkeos.{tenantId}.policy-acknowledged",
+      "producer": "policies",
+      "consumers": ["compliance"],
+      "dlq": "glenkeos.{tenantId}.policy-acknowledged.dlq"
+    },
+    {
+      "event": "RISK_EVENT_CREATED",
+      "topic": "glenkeos.{tenantId}.risk-event-created",
+      "producer": "risk",
+      "consumers": ["compliance", "metrics"],
+      "dlq": "glenkeos.{tenantId}.risk-event-created.dlq"
+    },
+    {
+      "event": "RISK_EVENT_ESCALATED",
+      "topic": "glenkeos.{tenantId}.risk-event-escalated",
+      "producer": "risk",
+      "consumers": ["compliance"],
+      "dlq": "glenkeos.{tenantId}.risk-event-escalated.dlq"
+    },
+    {
+      "event": "RISK_EVENT_MITIGATED",
+      "topic": "glenkeos.{tenantId}.risk-event-mitigated",
+      "producer": "risk",
+      "consumers": ["compliance"],
+      "dlq": "glenkeos.{tenantId}.risk-event-mitigated.dlq"
+    },
+    {
+      "event": "RISK_EVENT_CLOSED",
+      "topic": "glenkeos.{tenantId}.risk-event-closed",
+      "producer": "risk",
+      "consumers": ["compliance"],
+      "dlq": "glenkeos.{tenantId}.risk-event-closed.dlq"
+    },
+    {
+      "event": "COMPLIANCE_VIOLATION_DETECTED",
+      "topic": "glenkeos.{tenantId}.compliance-violation-detected",
+      "producer": "compliance",
+      "consumers": ["risk", "metrics"],
+      "dlq": "glenkeos.{tenantId}.compliance-violation-detected.dlq"
+    },
+    {
+      "event": "COMPLIANCE_REPORT_GENERATED",
+      "topic": "glenkeos.{tenantId}.compliance-report-generated",
+      "producer": "compliance",
+      "consumers": [],
+      "dlq": "glenkeos.{tenantId}.compliance-report-generated.dlq"
+    },
+    {
+      "event": "DATA_EXPORT_REQUESTED",
+      "topic": "glenkeos.{tenantId}.data-export-requested",
+      "producer": "compliance",
+      "consumers": ["risk"],
+      "dlq": "glenkeos.{tenantId}.data-export-requested.dlq"
+    },
+    {
+      "event": "ACCESS_DENIED",
+      "topic": "glenkeos.{tenantId}.access-denied",
+      "producer": "compliance",
+      "consumers": ["risk"],
+      "dlq": "glenkeos.{tenantId}.access-denied.dlq"
+    }
+  ]
+}

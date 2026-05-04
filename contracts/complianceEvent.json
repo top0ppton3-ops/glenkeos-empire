@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "ComplianceEvent",
+  "description": "Immutable audit log entry for compliance tracking",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^comp_[a-zA-Z0-9]+$",
+      "description": "Unique compliance event identifier"
+    },
+    "type": {
+      "type": "string",
+      "const": "complianceEvent"
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "eventType": {
+          "type": "string",
+          "enum": [
+            "ORDER_CREATED",
+            "ORDER_STATUS_CHANGED",
+            "INVENTORY_CHANGED",
+            "POLICY_UPDATED",
+            "RISK_EVENT_CREATED",
+            "RISK_EVENT_UPDATED",
+            "ROLE_CHANGED",
+            "STAFF_CREATED",
+            "STAFF_UPDATED",
+            "DRIVER_STATUS_CHANGED",
+            "ACCESS_GRANTED",
+            "ACCESS_REVOKED",
+            "DATA_EXPORTED",
+            "SYSTEM_CONFIG_CHANGED"
+          ]
+        },
+        "actorId": {
+          "type": "string",
+          "description": "Staff ID or system identifier that triggered the event"
+        },
+        "actorType": {
+          "type": "string",
+          "enum": ["STAFF", "SYSTEM", "API", "CUSTOMER"]
+        },
+        "entityType": {
+          "type": "string",
+          "enum": ["order", "store", "driver", "staff", "policy", "riskEvent", "inventoryItem", "customer"]
+        },
+        "entityId": {
+          "type": "string",
+          "description": "ID of the entity affected"
+        },
+        "action": {
+          "type": "string",
+          "description": "Human-readable description of the action"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Event-specific data (immutable)"
+        },
+        "ipAddress": {
+          "type": ["string", "null"],
+          "format": "ipv4"
+        },
+        "userAgent": {
+          "type": ["string", "null"]
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Immutable event timestamp"
+        }
+      },
+      "required": [
+        "eventType",
+        "actorId",
+        "actorType",
+        "entityType",
+        "entityId",
+        "action",
+        "timestamp"
+      ]
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "actor": { "type": "string" },
+        "entity": { "type": "string" }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "immutable": { "type": "boolean", "const": true }
+      }
+    }
+  },
+  "required": ["id", "type", "attributes", "meta"]
+}

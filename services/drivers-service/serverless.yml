@@ -1,0 +1,115 @@
+service: glenkeos-drivers-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  environment:
+    STAGE: ${self:provider.stage}
+    DB_HOST: ${ssm:/glenkeos/${self:provider.stage}/db/host}
+    DB_NAME: ${ssm:/glenkeos/${self:provider.stage}/db/name}
+    DB_USER: ${ssm:/glenkeos/${self:provider.stage}/db/user}
+    DB_PASSWORD: ${ssm:/glenkeos/${self:provider.stage}/db/password~true}
+    EVENT_BUS_NAME: ${ssm:/glenkeos/${self:provider.stage}/eventbridge/bus-name}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+            - ssm:GetParameters
+          Resource: 'arn:aws:ssm:${self:provider.region}:*:parameter/glenkeos/${self:provider.stage}/*'
+
+functions:
+  createDriver:
+    handler: src/handlers/createDriver.handler
+    events:
+      - http:
+          path: /drivers
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  getDrivers:
+    handler: src/handlers/getDrivers.handler
+    events:
+      - http:
+          path: /drivers
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  getDriver:
+    handler: src/handlers/getDriver.handler
+    events:
+      - http:
+          path: /drivers/{driverId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  updateDriver:
+    handler: src/handlers/updateDriver.handler
+    events:
+      - http:
+          path: /drivers/{driverId}
+          method: put
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  assignDriver:
+    handler: src/handlers/assignDriver.handler
+    events:
+      - http:
+          path: /drivers/{driverId}/assignments
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  updateAssignmentStatus:
+    handler: src/handlers/updateAssignmentStatus.handler
+    events:
+      - http:
+          path: /drivers/{driverId}/assignments/{assignmentId}/status
+          method: patch
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  updateLocation:
+    handler: src/handlers/updateLocation.handler
+    events:
+      - http:
+          path: /drivers/{driverId}/location
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+plugins:
+  - serverless-offline
+
+package:
+  individually: true
+  patterns:
+    - '!node_modules/**'
+    - '!.git/**'

@@ -1,0 +1,434 @@
+{
+  "project_info": {
+    "name": "GlenKeos Enterprise Platform",
+    "supabase_project_id": "beswluhdxaphtitaovly",
+    "supabase_url": "https://beswluhdxaphtitaovly.supabase.co",
+    "edge_function_name": "make-server-89a553ba",
+    "backend_url": "https://beswluhdxaphtitaovly.supabase.co/functions/v1/make-server-89a553ba"
+  },
+
+  "deployment_timeline": {
+    "total_time": "2-3 hours",
+    "phase_1_backend": "30 minutes",
+    "phase_2_frontend": "15 minutes",
+    "phase_3_testing": "30 minutes",
+    "phase_4_production": "60 minutes"
+  },
+
+  "step_by_step_guide": {
+    "phase_1_backend_deployment": {
+      "step_1": {
+        "title": "Deploy Edge Function",
+        "duration": "10 minutes",
+        "actions": [
+          "Go to: https://supabase.com/dashboard/project/beswluhdxaphtitaovly/functions",
+          "Click 'New Function'",
+          "Name: make-server-89a553ba",
+          "Copy code from /PASTE_THIS_INTO_SUPABASE.ts (840 lines)",
+          "Paste into editor",
+          "Click 'Deploy'"
+        ]
+      },
+      "step_2": {
+        "title": "Set Environment Variables",
+        "duration": "5 minutes",
+        "location": "https://supabase.com/dashboard/project/beswluhdxaphtitaovly/settings/functions",
+        "variables": {
+          "SUPABASE_URL": "https://beswluhdxaphtitaovly.supabase.co",
+          "SUPABASE_SERVICE_ROLE_KEY": "[Get from Settings > API > service_role key]"
+        },
+        "instructions": [
+          "Go to Settings > API",
+          "Copy the 'service_role' key (NOT anon key)",
+          "Go to Settings > Edge Functions",
+          "Add both environment variables"
+        ]
+      },
+      "step_3": {
+        "title": "Verify Deployment",
+        "duration": "5 minutes",
+        "test_url": "https://beswluhdxaphtitaovly.supabase.co/functions/v1/make-server-89a553ba/health",
+        "expected_response": {
+          "status": "ok",
+          "timestamp": "2026-04-21T...",
+          "mode": "production"
+        },
+        "troubleshooting": {
+          "404_error": "Function name must be EXACTLY 'make-server-89a553ba'",
+          "500_error": "Check environment variables are set correctly",
+          "cors_error": "CORS is already configured in the code"
+        }
+      }
+    },
+
+    "phase_2_frontend_deployment": {
+      "step_1": {
+        "title": "Backend Connection (Already Done)",
+        "status": "COMPLETE",
+        "file": "/src/app/services/api/client.ts",
+        "change": "USE_MOCK = false"
+      },
+      "step_2": {
+        "title": "Choose Hosting Platform",
+        "options": {
+          "vercel": {
+            "recommended": true,
+            "setup_time": "5 minutes",
+            "commands": [
+              "npm install -g vercel",
+              "vercel login",
+              "vercel --prod"
+            ],
+            "build_settings": {
+              "framework": "Vite",
+              "build_command": "npm run build",
+              "output_directory": "dist",
+              "install_command": "npm install"
+            }
+          },
+          "netlify": {
+            "recommended": false,
+            "setup_time": "5 minutes",
+            "commands": [
+              "npm install -g netlify-cli",
+              "netlify login",
+              "netlify deploy --prod"
+            ],
+            "build_settings": {
+              "build_command": "npm run build",
+              "publish_directory": "dist"
+            }
+          },
+          "supabase_hosting": {
+            "recommended": false,
+            "setup_time": "10 minutes",
+            "note": "Requires additional configuration"
+          }
+        }
+      }
+    },
+
+    "phase_3_testing": {
+      "critical_urls_to_test": [
+        "/",
+        "/menu",
+        "/cart",
+        "/checkout",
+        "/orders/test-id",
+        "/corporate",
+        "/internal/login",
+        "/internal",
+        "/test-backend"
+      ],
+      "backend_endpoints_to_test": [
+        {
+          "url": "/health",
+          "method": "GET",
+          "expected": "200 OK"
+        },
+        {
+          "url": "/customers",
+          "method": "GET",
+          "expected": "200 OK with empty array or customer list"
+        },
+        {
+          "url": "/stores",
+          "method": "GET",
+          "expected": "200 OK with empty array or store list"
+        },
+        {
+          "url": "/orders",
+          "method": "GET",
+          "expected": "200 OK with empty array or order list"
+        },
+        {
+          "url": "/analytics/dashboard",
+          "method": "GET",
+          "expected": "200 OK with analytics data"
+        }
+      ]
+    }
+  },
+
+  "environment_variables": {
+    "backend_supabase_edge_function": {
+      "SUPABASE_URL": {
+        "value": "https://beswluhdxaphtitaovly.supabase.co",
+        "source": "Fixed value",
+        "required": true
+      },
+      "SUPABASE_SERVICE_ROLE_KEY": {
+        "value": "GET_FROM_SUPABASE_DASHBOARD",
+        "source": "Settings > API > service_role",
+        "required": true,
+        "warning": "NEVER expose this key in frontend code"
+      }
+    },
+    "frontend_vercel_netlify": {
+      "note": "No environment variables needed - credentials are in /utils/supabase/info.tsx"
+    }
+  },
+
+  "code_to_paste": {
+    "location": "/PASTE_THIS_INTO_SUPABASE.ts",
+    "file_location_in_project": "Root directory",
+    "lines": 840,
+    "description": "Complete backend with KV store, all services, and API endpoints",
+    "what_to_do": "Copy entire file contents and paste into Supabase Edge Function editor"
+  },
+
+  "api_endpoints_available": {
+    "authentication": [
+      "POST /make-server-89a553ba/auth/signup",
+      "POST /make-server-89a553ba/auth/signin"
+    ],
+    "customers": [
+      "POST /make-server-89a553ba/customers",
+      "GET /make-server-89a553ba/customers",
+      "GET /make-server-89a553ba/customers/:id",
+      "GET /make-server-89a553ba/customers/email/:email"
+    ],
+    "stores": [
+      "POST /make-server-89a553ba/stores",
+      "GET /make-server-89a553ba/stores",
+      "GET /make-server-89a553ba/stores/:id"
+    ],
+    "orders": [
+      "POST /make-server-89a553ba/orders",
+      "GET /make-server-89a553ba/orders",
+      "GET /make-server-89a553ba/orders/:id",
+      "PUT /make-server-89a553ba/orders/:id/status",
+      "PATCH /make-server-89a553ba/orders/:id/status"
+    ],
+    "inventory": [
+      "POST /make-server-89a553ba/inventory",
+      "GET /make-server-89a553ba/inventory",
+      "GET /make-server-89a553ba/inventory/:id",
+      "PUT /make-server-89a553ba/inventory/:id/quantity",
+      "PATCH /make-server-89a553ba/inventory/:id/quantity"
+    ],
+    "drivers": [
+      "POST /make-server-89a553ba/drivers",
+      "GET /make-server-89a553ba/drivers",
+      "GET /make-server-89a553ba/drivers/:id",
+      "POST /make-server-89a553ba/drivers/:id/assign",
+      "POST /make-server-89a553ba/drivers/:driverId/assign/:orderId"
+    ],
+    "payments": [
+      "POST /make-server-89a553ba/payments",
+      "GET /make-server-89a553ba/payments/:id"
+    ],
+    "analytics": [
+      "GET /make-server-89a553ba/analytics/dashboard"
+    ]
+  },
+
+  "deployment_commands": {
+    "vercel": {
+      "install_cli": "npm install -g vercel",
+      "login": "vercel login",
+      "deploy_dev": "vercel",
+      "deploy_production": "vercel --prod",
+      "environment_setup": "Not needed - uses /utils/supabase/info.tsx"
+    },
+    "netlify": {
+      "install_cli": "npm install -g netlify-cli",
+      "login": "netlify login",
+      "deploy_dev": "netlify deploy",
+      "deploy_production": "netlify deploy --prod",
+      "build_command": "npm run build",
+      "publish_directory": "dist"
+    },
+    "manual_build": {
+      "install_dependencies": "npm install",
+      "build": "npm run build",
+      "output_directory": "dist",
+      "preview_locally": "npm run preview"
+    }
+  },
+
+  "quick_start_checklist": [
+    {
+      "step": 1,
+      "task": "Open /PASTE_THIS_INTO_SUPABASE.ts file",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "task": "Copy all 840 lines of code",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "task": "Go to https://supabase.com/dashboard/project/beswluhdxaphtitaovly/functions",
+      "status": "pending"
+    },
+    {
+      "step": 4,
+      "task": "Click 'New Function', name it 'make-server-89a553ba'",
+      "status": "pending"
+    },
+    {
+      "step": 5,
+      "task": "Paste code and click Deploy",
+      "status": "pending"
+    },
+    {
+      "step": 6,
+      "task": "Go to Settings > API, copy service_role key",
+      "status": "pending"
+    },
+    {
+      "step": 7,
+      "task": "Go to Settings > Edge Functions, add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY",
+      "status": "pending"
+    },
+    {
+      "step": 8,
+      "task": "Test: https://beswluhdxaphtitaovly.supabase.co/functions/v1/make-server-89a553ba/health",
+      "status": "pending"
+    },
+    {
+      "step": 9,
+      "task": "Verify response: {status: 'ok', mode: 'production'}",
+      "status": "pending"
+    },
+    {
+      "step": 10,
+      "task": "Run: npm install -g vercel",
+      "status": "pending"
+    },
+    {
+      "step": 11,
+      "task": "Run: vercel login",
+      "status": "pending"
+    },
+    {
+      "step": 12,
+      "task": "Run: vercel --prod",
+      "status": "pending"
+    },
+    {
+      "step": 13,
+      "task": "Test your live site!",
+      "status": "pending"
+    }
+  ],
+
+  "troubleshooting": {
+    "backend_404": {
+      "problem": "Backend returns 404",
+      "solutions": [
+        "Verify function name is exactly 'make-server-89a553ba'",
+        "Check function is deployed (not in draft)",
+        "Wait 30 seconds after deployment for propagation"
+      ]
+    },
+    "backend_500": {
+      "problem": "Backend returns 500 error",
+      "solutions": [
+        "Check environment variables are set",
+        "Verify SUPABASE_SERVICE_ROLE_KEY is correct",
+        "Check Edge Function logs in Supabase dashboard"
+      ]
+    },
+    "frontend_api_error": {
+      "problem": "Frontend can't connect to backend",
+      "solutions": [
+        "Verify USE_MOCK = false in /src/app/services/api/client.ts",
+        "Check browser console for CORS errors",
+        "Verify backend health endpoint works first"
+      ]
+    },
+    "cors_error": {
+      "problem": "CORS policy blocking requests",
+      "solutions": [
+        "CORS is already configured in backend code",
+        "Clear browser cache",
+        "Check backend logs for actual error"
+      ]
+    }
+  },
+
+  "post_deployment": {
+    "monitoring": {
+      "backend_logs": "https://supabase.com/dashboard/project/beswluhdxaphtitaovly/functions/make-server-89a553ba/logs",
+      "analytics": "Check /internal/analytics page",
+      "health_check": "https://beswluhdxaphtitaovly.supabase.co/functions/v1/make-server-89a553ba/health"
+    },
+    "performance": {
+      "edge_function_region": "Automatically optimized by Supabase",
+      "caching": "Not configured - add if needed",
+      "cdn": "Vercel provides automatic CDN"
+    },
+    "security": {
+      "https": "Automatic with Vercel/Netlify",
+      "api_keys": "Never expose SUPABASE_SERVICE_ROLE_KEY in frontend",
+      "cors": "Configured for all origins (*) - restrict in production if needed"
+    }
+  },
+
+  "important_urls": {
+    "supabase_dashboard": "https://supabase.com/dashboard/project/beswluhdxaphtitaovly",
+    "edge_functions": "https://supabase.com/dashboard/project/beswluhdxaphtitaovly/functions",
+    "api_settings": "https://supabase.com/dashboard/project/beswluhdxaphtitaovly/settings/api",
+    "function_logs": "https://supabase.com/dashboard/project/beswluhdxaphtitaovly/functions/make-server-89a553ba/logs",
+    "backend_health": "https://beswluhdxaphtitaovly.supabase.co/functions/v1/make-server-89a553ba/health"
+  },
+
+  "application_routes": {
+    "customer_facing": [
+      "/",
+      "/menu",
+      "/menu/:itemId",
+      "/locations",
+      "/rewards",
+      "/about",
+      "/support",
+      "/legal",
+      "/privacy",
+      "/accessibility",
+      "/cart",
+      "/checkout",
+      "/orders/:orderId",
+      "/account"
+    ],
+    "corporate": [
+      "/corporate",
+      "/corporate/divisions",
+      "/corporate/compliance",
+      "/corporate/risk-governance",
+      "/corporate/technology",
+      "/corporate/vault",
+      "/corporate/contact"
+    ],
+    "internal": [
+      "/internal/login",
+      "/internal",
+      "/internal/compliance",
+      "/internal/operations",
+      "/internal/analytics",
+      "/internal/settings",
+      "/internal/execution"
+    ],
+    "testing": [
+      "/test-backend",
+      "/api-demo"
+    ]
+  },
+
+  "final_notes": {
+    "backend_status": "Code ready in /PASTE_THIS_INTO_SUPABASE.ts - needs manual deployment to Supabase",
+    "frontend_status": "Already configured to use real backend (USE_MOCK = false)",
+    "estimated_completion": "30-60 minutes if following steps exactly",
+    "support": "Check browser console and Supabase logs for any errors",
+    "next_steps_after_deployment": [
+      "Test all critical user flows",
+      "Monitor backend logs for errors",
+      "Set up custom domain (optional)",
+      "Configure analytics/monitoring",
+      "Add error tracking (Sentry, etc.)",
+      "Optimize performance if needed"
+    ]
+  }
+}

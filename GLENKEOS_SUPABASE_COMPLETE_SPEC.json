@@ -1,0 +1,555 @@
+{
+  "platform": {
+    "name": "GlenKeos Enterprise Platform",
+    "version": "1.0.0",
+    "architecture": "Supabase-Powered Microservices",
+    "deployment_target": "Production-Ready Fortune 500",
+    "backend_url": "https://beswluhdxaphtitaovly.supabase.co/functions/v1/server/make-server-89a553ba"
+  },
+  "microservices": [
+    {
+      "name": "Authentication Service",
+      "prefix": "/auth",
+      "description": "Handles user authentication and authorization using Supabase Auth",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/auth/signup",
+          "description": "Register new user with auto-confirmed email",
+          "request": {
+            "email": "string",
+            "password": "string",
+            "name": "string",
+            "role": "string (optional, default: customer)"
+          },
+          "response": {
+            "user": "User object with metadata"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer Service",
+      "prefix": "/customers",
+      "description": "Customer management with loyalty tiers",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/customers",
+          "description": "Create new customer",
+          "request": {
+            "email": "string (required)",
+            "name": "string (required)",
+            "phone": "string (optional)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/customers/:id",
+          "description": "Get customer by ID"
+        },
+        {
+          "method": "GET",
+          "path": "/customers/email/:email",
+          "description": "Get customer by email"
+        },
+        {
+          "method": "GET",
+          "path": "/customers",
+          "description": "List all customers"
+        }
+      ]
+    },
+    {
+      "name": "Store Service",
+      "prefix": "/stores",
+      "description": "Multi-brand store management (Chic-on-Chain, Ghetto Eats)",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/stores",
+          "description": "Create new store",
+          "request": {
+            "brand": "CHIC_ON_CHAIN | GHETTO_EATS",
+            "name": "string",
+            "campus_id": "string",
+            "location": "string"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/stores/:id",
+          "description": "Get store by ID"
+        },
+        {
+          "method": "GET",
+          "path": "/stores?brand=BRAND_NAME",
+          "description": "List stores, optionally filtered by brand"
+        }
+      ]
+    },
+    {
+      "name": "Order Service",
+      "prefix": "/orders",
+      "description": "Order lifecycle management with status tracking",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/orders",
+          "description": "Create new order",
+          "request": {
+            "customer_id": "uuid",
+            "store_id": "uuid",
+            "brand": "CHIC_ON_CHAIN | GHETTO_EATS",
+            "campus_id": "string",
+            "dorm_id": "string",
+            "room_number": "string",
+            "items": "array of items",
+            "total_amount": "number"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/orders/:id",
+          "description": "Get order by ID"
+        },
+        {
+          "method": "PUT",
+          "path": "/orders/:id/status",
+          "description": "Update order status",
+          "request": {
+            "status": "PENDING | ASSIGNED | IN_PROGRESS | COMPLETED | CANCELLED"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/orders?customer_id=&status=&brand=",
+          "description": "List orders with optional filters"
+        }
+      ]
+    },
+    {
+      "name": "Inventory Service",
+      "prefix": "/inventory",
+      "description": "Real-time inventory tracking with low-stock alerts",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/inventory",
+          "description": "Create inventory item",
+          "request": {
+            "store_id": "uuid",
+            "name": "string",
+            "description": "string",
+            "category": "string",
+            "price": "number",
+            "quantity": "number",
+            "low_stock_threshold": "number (default: 10)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/inventory/:id",
+          "description": "Get inventory item"
+        },
+        {
+          "method": "PUT",
+          "path": "/inventory/:id/quantity",
+          "description": "Update inventory quantity (triggers low-stock alerts)",
+          "request": {
+            "quantity": "number"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/inventory?store_id=&category=",
+          "description": "List inventory items with filters"
+        }
+      ]
+    },
+    {
+      "name": "Driver Service",
+      "prefix": "/drivers",
+      "description": "Driver management and order assignment",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/drivers",
+          "description": "Register new driver",
+          "request": {
+            "name": "string",
+            "phone": "string",
+            "email": "string",
+            "vehicle_type": "string",
+            "license_plate": "string",
+            "current_location": "object (optional)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/drivers/:id",
+          "description": "Get driver details"
+        },
+        {
+          "method": "POST",
+          "path": "/drivers/:driverId/assign/:orderId",
+          "description": "Assign driver to order (updates both driver and order status)"
+        },
+        {
+          "method": "GET",
+          "path": "/drivers?status=AVAILABLE|ASSIGNED|OFFLINE",
+          "description": "List drivers with status filter"
+        }
+      ]
+    },
+    {
+      "name": "Staff Service",
+      "prefix": "/staff",
+      "description": "Employee management across stores",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/staff",
+          "description": "Create staff member",
+          "request": {
+            "name": "string",
+            "email": "string",
+            "role": "MANAGER | CHEF | CASHIER | etc.",
+            "store_id": "uuid",
+            "phone": "string"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/staff?store_id=&role=",
+          "description": "List staff with filters"
+        }
+      ]
+    },
+    {
+      "name": "Payments Service",
+      "prefix": "/payments",
+      "description": "Payment processing with compliance logging",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/payments",
+          "description": "Process payment",
+          "request": {
+            "order_id": "uuid",
+            "customer_id": "uuid",
+            "amount": "number",
+            "payment_method": "CREDIT_CARD | PAYPAL | APPLE_PAY | GOOGLE_PAY"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/payments/:id",
+          "description": "Get payment details"
+        }
+      ]
+    },
+    {
+      "name": "Metrics Service",
+      "prefix": "/metrics",
+      "description": "Real-time operational metrics and KPI tracking",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/metrics",
+          "description": "Log metric",
+          "request": {
+            "name": "string",
+            "value": "number",
+            "unit": "string",
+            "tags": "object (optional)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/metrics?name=METRIC_NAME",
+          "description": "Get metrics by name"
+        }
+      ]
+    },
+    {
+      "name": "Compliance Service",
+      "prefix": "/compliance",
+      "description": "Audit trail and compliance event logging",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/compliance",
+          "description": "Log compliance event",
+          "request": {
+            "event_type": "string",
+            "details": "object",
+            "severity": "INFO | WARNING | ERROR | CRITICAL"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/compliance?event_type=EVENT_TYPE",
+          "description": "Get compliance events"
+        }
+      ]
+    },
+    {
+      "name": "Notifications Service",
+      "prefix": "/notifications",
+      "description": "Multi-channel notification system",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/notifications",
+          "description": "Send notification",
+          "request": {
+            "user_id": "uuid",
+            "type": "EMAIL | SMS | PUSH",
+            "channel": "string",
+            "message": "string"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/notifications/user/:userId",
+          "description": "Get user notifications"
+        }
+      ]
+    },
+    {
+      "name": "GRC Service",
+      "prefix": "/grc",
+      "description": "Governance, Risk, and Compliance management",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/grc/policies",
+          "description": "Create policy",
+          "request": {
+            "name": "string",
+            "description": "string",
+            "category": "string"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/grc/risks",
+          "description": "Log risk event",
+          "request": {
+            "category": "string",
+            "description": "string",
+            "severity": "LOW | MEDIUM | HIGH | CRITICAL"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/grc/policies",
+          "description": "Get all policies"
+        },
+        {
+          "method": "GET",
+          "path": "/grc/risks",
+          "description": "Get all risks"
+        }
+      ]
+    },
+    {
+      "name": "Analytics Service",
+      "prefix": "/analytics",
+      "description": "Real-time business intelligence dashboard",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/analytics/dashboard",
+          "description": "Get comprehensive dashboard metrics",
+          "response": {
+            "totalOrders": "number",
+            "totalRevenue": "number",
+            "activeDrivers": "number",
+            "pendingOrders": "number",
+            "totalCustomers": "number",
+            "timestamp": "ISO 8601 timestamp"
+          }
+        }
+      ]
+    }
+  ],
+  "data_models": {
+    "customer": {
+      "id": "uuid (auto-generated)",
+      "email": "string (unique)",
+      "name": "string",
+      "phone": "string | null",
+      "loyalty_points": "number (default: 0)",
+      "tier": "STANDARD | GOLD | PLATINUM",
+      "created_at": "ISO timestamp"
+    },
+    "store": {
+      "id": "uuid",
+      "brand": "CHIC_ON_CHAIN | GHETTO_EATS",
+      "name": "string",
+      "campus_id": "string",
+      "location": "string",
+      "status": "ACTIVE | INACTIVE",
+      "created_at": "ISO timestamp"
+    },
+    "order": {
+      "id": "uuid",
+      "customer_id": "uuid",
+      "store_id": "uuid",
+      "brand": "string",
+      "campus_id": "string",
+      "dorm_id": "string",
+      "room_number": "string",
+      "items": "array",
+      "total_amount": "number",
+      "status": "PENDING | ASSIGNED | IN_PROGRESS | COMPLETED | CANCELLED",
+      "driver_id": "uuid | null",
+      "created_at": "ISO timestamp",
+      "updated_at": "ISO timestamp"
+    },
+    "inventory": {
+      "id": "uuid",
+      "store_id": "uuid",
+      "name": "string",
+      "description": "string",
+      "category": "string",
+      "price": "number",
+      "quantity": "number",
+      "low_stock_threshold": "number",
+      "created_at": "ISO timestamp",
+      "updated_at": "ISO timestamp"
+    },
+    "driver": {
+      "id": "uuid",
+      "name": "string",
+      "phone": "string",
+      "email": "string",
+      "vehicle_type": "string",
+      "license_plate": "string",
+      "status": "AVAILABLE | ASSIGNED | OFFLINE",
+      "current_location": "object | null",
+      "current_order_id": "uuid | null",
+      "created_at": "ISO timestamp",
+      "updated_at": "ISO timestamp"
+    },
+    "staff": {
+      "id": "uuid",
+      "name": "string",
+      "email": "string",
+      "role": "string",
+      "store_id": "uuid",
+      "phone": "string",
+      "status": "ACTIVE | INACTIVE",
+      "created_at": "ISO timestamp"
+    },
+    "payment": {
+      "id": "uuid",
+      "order_id": "uuid",
+      "customer_id": "uuid",
+      "amount": "number",
+      "payment_method": "string",
+      "status": "PENDING | COMPLETED | FAILED",
+      "transaction_id": "string",
+      "created_at": "ISO timestamp",
+      "processed_at": "ISO timestamp"
+    }
+  },
+  "brands": {
+    "B1_CORPORATE_LUXURY": {
+      "name": "GlenKeos Corporate",
+      "tier": "B1",
+      "theme": "Corporate Luxury",
+      "colors": {
+        "primary": "#1a1a1a",
+        "secondary": "#d4af37",
+        "accent": "#8b7355"
+      },
+      "target": "Enterprise governance portal"
+    },
+    "B2_GREEK_ROYAL": {
+      "name": "Chic-on-Chain",
+      "tier": "B2",
+      "theme": "Greek Royal",
+      "colors": {
+        "primary": "#003893",
+        "secondary": "#ffd700",
+        "accent": "#ffffff"
+      },
+      "target": "Premium restaurant operations"
+    },
+    "B3_ULTRA_MODERN": {
+      "name": "Ghetto Eats",
+      "tier": "B3",
+      "theme": "Ultra-Modern Royal",
+      "colors": {
+        "primary": "#000000",
+        "secondary": "#00ff00",
+        "accent": "#ff00ff"
+      },
+      "target": "Fast casual delivery"
+    }
+  },
+  "authentication": {
+    "provider": "Supabase Auth",
+    "features": [
+      "Email/Password authentication",
+      "Auto-confirmed emails (for development)",
+      "User metadata (name, role)",
+      "JWT-based sessions",
+      "Role-based access control"
+    ],
+    "frontend_usage": "Use Supabase client: supabase.auth.signInWithPassword()",
+    "protected_routes": "Pass access_token in Authorization header"
+  },
+  "storage_architecture": {
+    "type": "Supabase KV Store",
+    "namespacing_pattern": "resource_type:identifier",
+    "examples": [
+      "customer:uuid",
+      "order:uuid",
+      "driver:uuid",
+      "metric:metric_name:uuid:timestamp",
+      "compliance:event_type:uuid:timestamp",
+      "grc:policy:uuid",
+      "grc:risk:uuid"
+    ],
+    "indexing": "Prefix-based queries via getByPrefix()",
+    "flexibility": "JSON-serializable data, no schema migrations required"
+  },
+  "event_catalog": {
+    "ORDER_CREATED": "Logged when new order is created",
+    "ORDER_STATUS_CHANGED": "Logged on status transitions",
+    "DRIVER_ASSIGNED": "Logged when driver assigned to order",
+    "PAYMENT_PROCESSED": "Logged when payment completes",
+    "LOW_STOCK_ALERT": "Triggered when inventory below threshold"
+  },
+  "deployment": {
+    "backend": {
+      "platform": "Supabase Edge Functions",
+      "runtime": "Deno",
+      "framework": "Hono.js",
+      "url": "https://beswluhdxaphtitaovly.supabase.co/functions/v1/make-server-89a553ba"
+    },
+    "frontend": {
+      "framework": "React + TypeScript",
+      "routing": "React Router 7 (Data Mode)",
+      "styling": "Tailwind CSS v4",
+      "components": "Radix UI + shadcn/ui"
+    },
+    "database": {
+      "type": "Supabase KV Store (Postgres-backed)",
+      "no_migrations_needed": true,
+      "flexibility": "Schemaless JSON storage with ACID guarantees"
+    }
+  },
+  "next_steps": [
+    "Frontend UI integration with backend API",
+    "Implement brand-specific portals (B1, B2, B3)",
+    "Add real-time subscriptions via Supabase Realtime",
+    "Implement Row Level Security policies",
+    "Add comprehensive error handling and logging",
+    "Deploy to production with environment variables"
+  ]
+}

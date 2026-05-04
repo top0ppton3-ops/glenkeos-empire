@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "ComplianceEvents",
+  "description": "System-level compliance and audit events",
+  "definitions": {
+    "DATA_EXPORTED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "DATA_EXPORTED" },
+        "entityType": { "const": "complianceEvent" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "dataType": { "type": "string" },
+            "recordCount": { "type": "integer" },
+            "exportFormat": { "type": "string" },
+            "exportedBy": { "type": "string" },
+            "reason": { "type": "string" }
+          },
+          "required": ["dataType", "recordCount", "exportedBy"]
+        }
+      }
+    },
+    "SYSTEM_CONFIG_CHANGED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "SYSTEM_CONFIG_CHANGED" },
+        "entityType": { "const": "complianceEvent" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "configKey": { "type": "string" },
+            "oldValue": { "type": "string" },
+            "newValue": { "type": "string" },
+            "changedBy": { "type": "string" }
+          },
+          "required": ["configKey", "changedBy"]
+        }
+      }
+    },
+    "AUDIT_LOG_ACCESSED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "AUDIT_LOG_ACCESSED" },
+        "entityType": { "const": "complianceEvent" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "accessedBy": { "type": "string" },
+            "dateRange": {
+              "type": "object",
+              "properties": {
+                "start": { "type": "string", "format": "date-time" },
+                "end": { "type": "string", "format": "date-time" }
+              }
+            },
+            "recordCount": { "type": "integer" }
+          },
+          "required": ["accessedBy"]
+        }
+      }
+    }
+  }
+}

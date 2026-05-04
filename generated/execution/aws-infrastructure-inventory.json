@@ -1,0 +1,66 @@
+{
+  "region": "us-east-2",
+  "environment": "staging",
+  "discoveryDate": "2026-04-16",
+  "amplify": [
+    {
+      "name": "Glenkeos ",
+      "appId": "d262l1qtvcxnk9"
+    }
+  ],
+  "dynamodb": [
+    "AmplifyDataStore-enfwspvquvb3dotzfurj3gw4kq-staging",
+    "BACKENDCCENT-enfwspvquvb3dotzfurj3gw4kq-staging"
+  ],
+  "cognito": [
+    {
+      "name": "amplify_backend_manager_d262l1qtvcxnk9",
+      "id": "us-east-2_7YexJPzib"
+    }
+  ],
+  "lambda": [
+    {
+      "name": "amplify-login-define-auth-challenge-b49fe991",
+      "runtime": "nodejs20.x",
+      "purpose": "Amplify custom auth flow"
+    },
+    {
+      "name": "amplify-login-verify-auth-challenge-b49fe991",
+      "runtime": "nodejs20.x",
+      "purpose": "Amplify custom auth flow"
+    },
+    {
+      "name": "amplify-login-custom-message-b49fe991",
+      "runtime": "nodejs20.x",
+      "purpose": "Amplify custom auth flow"
+    },
+    {
+      "name": "amplify-login-create-auth-challenge-b49fe991",
+      "runtime": "nodejs20.x",
+      "purpose": "Amplify custom auth flow"
+    }
+  ],
+  "apiGateway": [],
+  "appsync": [
+    {
+      "name": "Glenkeos-staging",
+      "apiId": "enfwspvquvb3dotzfurj3gw4kq",
+      "type": "GraphQL"
+    }
+  ],
+  "rds": [],
+  "s3": [
+    "amplify-glenkeos-staging-3fe8c-deployment",
+    "glenkeos-chicken-on-chain-staging-artifacts"
+  ],
+  "summary": {
+    "amplifyApps": 1,
+    "dynamodbTables": 2,
+    "cognitoUserPools": 1,
+    "lambdaFunctions": 4,
+    "apiGatewayRest": 0,
+    "appsyncGraphQL": 1,
+    "rdsDatabases": 0,
+    "s3Buckets": 2
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "StaffEvents",
+  "description": "Domain events for staff and access management",
+  "definitions": {
+    "STAFF_CREATED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "STAFF_CREATED" },
+        "entityType": { "const": "staff" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "email": { "type": "string" },
+            "roles": { "type": "array", "items": { "type": "string" } },
+            "storeIds": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["email", "roles"]
+        }
+      }
+    },
+    "STAFF_UPDATED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "STAFF_UPDATED" },
+        "entityType": { "const": "staff" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "changes": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "ROLE_CHANGED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ROLE_CHANGED" },
+        "entityType": { "const": "staff" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "oldRoles": { "type": "array", "items": { "type": "string" } },
+            "newRoles": { "type": "array", "items": { "type": "string" } },
+            "changedBy": { "type": "string" }
+          },
+          "required": ["oldRoles", "newRoles", "changedBy"]
+        }
+      }
+    },
+    "ACCESS_GRANTED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ACCESS_GRANTED" },
+        "entityType": { "const": "staff" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "resource": { "type": "string" },
+            "resourceId": { "type": "string" },
+            "grantedBy": { "type": "string" }
+          },
+          "required": ["resource", "grantedBy"]
+        }
+      }
+    },
+    "ACCESS_REVOKED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ACCESS_REVOKED" },
+        "entityType": { "const": "staff" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "resource": { "type": "string" },
+            "resourceId": { "type": "string" },
+            "revokedBy": { "type": "string" },
+            "reason": { "type": "string" }
+          },
+          "required": ["resource", "revokedBy"]
+        }
+      }
+    }
+  }
+}

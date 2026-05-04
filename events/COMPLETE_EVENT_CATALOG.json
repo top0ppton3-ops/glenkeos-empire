@@ -1,0 +1,580 @@
+{
+  "catalog_version": "1.0.0",
+  "event_bus": "glenkeos-bus",
+  "total_events": 35,
+  "events": [
+    {
+      "event_type": "STORE_CREATED",
+      "source": "stores-service",
+      "version": "1.0",
+      "description": "New store location has been created",
+      "schema": {
+        "store_id": "string",
+        "brand_id": "string",
+        "store_name": "string",
+        "address": {
+          "line1": "string",
+          "city": "string",
+          "state": "string",
+          "postal_code": "string"
+        },
+        "status": "string",
+        "tenant_id": "string"
+      },
+      "consumers": ["metrics-service", "compliance-service"],
+      "priority": "medium"
+    },
+    {
+      "event_type": "STORE_UPDATED",
+      "source": "stores-service",
+      "version": "1.0",
+      "description": "Store information has been updated",
+      "schema": {
+        "store_id": "string",
+        "changes": "object",
+        "updated_by": "string"
+      },
+      "consumers": ["audit-service", "compliance-service"],
+      "priority": "low"
+    },
+    {
+      "event_type": "STORE_STATUS_CHANGED",
+      "source": "stores-service",
+      "version": "1.0",
+      "description": "Store operational status changed",
+      "schema": {
+        "store_id": "string",
+        "from_status": "string",
+        "to_status": "string",
+        "reason": "string"
+      },
+      "consumers": ["notifications-service", "metrics-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "CUSTOMER_CREATED",
+      "source": "customers-service",
+      "version": "1.0",
+      "description": "New customer account registered",
+      "schema": {
+        "customer_id": "string",
+        "email": "string",
+        "cognito_sub": "string",
+        "marketing_opt_in": "boolean"
+      },
+      "consumers": ["notifications-service", "metrics-service", "compliance-service"],
+      "priority": "medium"
+    },
+    {
+      "event_type": "CUSTOMER_UPDATED",
+      "source": "customers-service",
+      "version": "1.0",
+      "description": "Customer profile updated",
+      "schema": {
+        "customer_id": "string",
+        "changes": "object"
+      },
+      "consumers": ["audit-service"],
+      "priority": "low"
+    },
+    {
+      "event_type": "REWARD_EARNED",
+      "source": "customers-service",
+      "version": "1.0",
+      "description": "Customer earned reward points",
+      "schema": {
+        "customer_id": "string",
+        "points": "number",
+        "reason": "string",
+        "order_id": "string?"
+      },
+      "consumers": ["notifications-service", "metrics-service"],
+      "priority": "medium"
+    },
+    {
+      "event_type": "REFERRAL_COMPLETED",
+      "source": "customers-service",
+      "version": "1.0",
+      "description": "Customer referral successfully completed",
+      "schema": {
+        "referral_id": "string",
+        "referrer_customer_id": "string",
+        "referred_customer_id": "string",
+        "reward_points": "number"
+      },
+      "consumers": ["notifications-service", "metrics-service"],
+      "priority": "medium"
+    },
+    {
+      "event_type": "STOCK_LOW",
+      "source": "inventory-service",
+      "version": "1.0",
+      "description": "Inventory item below low threshold",
+      "schema": {
+        "item_id": "string",
+        "store_id": "string",
+        "item_name": "string",
+        "current_quantity": "number",
+        "threshold_low": "number"
+      },
+      "consumers": ["notifications-service", "metrics-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "STOCK_CRITICAL",
+      "source": "inventory-service",
+      "version": "1.0",
+      "description": "Inventory item at critical level",
+      "schema": {
+        "item_id": "string",
+        "store_id": "string",
+        "item_name": "string",
+        "current_quantity": "number",
+        "threshold_critical": "number"
+      },
+      "consumers": ["notifications-service", "metrics-service", "compliance-service"],
+      "priority": "critical"
+    },
+    {
+      "event_type": "ITEM_UNAVAILABLE",
+      "source": "inventory-service",
+      "version": "1.0",
+      "description": "Menu item is no longer available",
+      "schema": {
+        "item_id": "string",
+        "store_id": "string",
+        "item_name": "string",
+        "reason": "string"
+      },
+      "consumers": ["notifications-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "MENU_UPDATED",
+      "source": "inventory-service",
+      "version": "1.0",
+      "description": "Menu items or availability updated",
+      "schema": {
+        "brand_id": "string",
+        "changes": "array"
+      },
+      "consumers": ["notifications-service"],
+      "priority": "medium"
+    },
+    {
+      "event_type": "INVENTORY_ADJUSTED",
+      "source": "inventory-service",
+      "version": "1.0",
+      "description": "Manual inventory adjustment made",
+      "schema": {
+        "item_id": "string",
+        "store_id": "string",
+        "adjustment_quantity": "number",
+        "reason": "string",
+        "adjusted_by": "string"
+      },
+      "consumers": ["audit-service", "metrics-service"],
+      "priority": "medium"
+    },
+    {
+      "event_type": "ORDER_CREATED",
+      "source": "orders-service",
+      "version": "1.0",
+      "description": "New order placed by customer",
+      "schema": {
+        "order_id": "string",
+        "customer_id": "string",
+        "store_id": "string",
+        "order_number": "string",
+        "order_type": "string",
+        "total": "number",
+        "items": "array"
+      },
+      "consumers": ["notifications-service", "metrics-service", "inventory-service", "compliance-service"],
+      "priority": "critical"
+    },
+    {
+      "event_type": "ORDER_ACCEPTED",
+      "source": "orders-service",
+      "version": "1.0",
+      "description": "Order accepted by store",
+      "schema": {
+        "order_id": "string",
+        "store_id": "string",
+        "accepted_by": "string",
+        "estimated_prep_time": "number"
+      },
+      "consumers": ["notifications-service", "metrics-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "ORDER_IN_PREP",
+      "source": "orders-service",
+      "version": "1.0",
+      "description": "Order preparation started",
+      "schema": {
+        "order_id": "string",
+        "store_id": "string",
+        "prep_started_by": "string"
+      },
+      "consumers": ["notifications-service", "metrics-service"],
+      "priority": "medium"
+    },
+    {
+      "event_type": "ORDER_READY",
+      "source": "orders-service",
+      "version": "1.0",
+      "description": "Order is ready for pickup or delivery",
+      "schema": {
+        "order_id": "string",
+        "store_id": "string",
+        "order_type": "string"
+      },
+      "consumers": ["notifications-service", "drivers-service", "metrics-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "ORDER_OUT_FOR_DELIVERY",
+      "source": "orders-service",
+      "version": "1.0",
+      "description": "Order out for delivery",
+      "schema": {
+        "order_id": "string",
+        "driver_id": "string",
+        "estimated_delivery_time": "number"
+      },
+      "consumers": ["notifications-service", "metrics-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "ORDER_COMPLETED",
+      "source": "orders-service",
+      "version": "1.0",
+      "description": "Order successfully completed",
+      "schema": {
+        "order_id": "string",
+        "customer_id": "string",
+        "total": "number",
+        "completed_at": "string"
+      },
+      "consumers": ["notifications-service", "customers-service", "metrics-service", "compliance-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "ORDER_CANCELLED",
+      "source": "orders-service",
+      "version": "1.0",
+      "description": "Order cancelled",
+      "schema": {
+        "order_id": "string",
+        "cancelled_by": "string",
+        "reason": "string",
+        "refund_required": "boolean"
+      },
+      "consumers": ["notifications-service", "payments-service", "metrics-service", "compliance-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "PAYMENT_AUTHORIZED",
+      "source": "payments-service",
+      "version": "1.0",
+      "description": "Payment authorized but not yet captured",
+      "schema": {
+        "payment_id": "string",
+        "order_id": "string",
+        "amount": "number",
+        "payment_method": "string",
+        "paypal_order_id": "string"
+      },
+      "consumers": ["orders-service", "metrics-service"],
+      "priority": "critical"
+    },
+    {
+      "event_type": "PAYMENT_COMPLETED",
+      "source": "payments-service",
+      "version": "1.0",
+      "description": "Payment successfully captured",
+      "schema": {
+        "payment_id": "string",
+        "order_id": "string",
+        "customer_id": "string",
+        "amount": "number",
+        "net_amount": "number",
+        "transaction_fee": "number",
+        "payment_method": "string"
+      },
+      "consumers": ["notifications-service", "orders-service", "metrics-service", "compliance-service"],
+      "priority": "critical"
+    },
+    {
+      "event_type": "PAYMENT_FAILED",
+      "source": "payments-service",
+      "version": "1.0",
+      "description": "Payment authorization or capture failed",
+      "schema": {
+        "payment_id": "string",
+        "order_id": "string",
+        "amount": "number",
+        "failure_reason": "string"
+      },
+      "consumers": ["notifications-service", "orders-service", "metrics-service", "compliance-service"],
+      "priority": "critical"
+    },
+    {
+      "event_type": "REFUND_ISSUED",
+      "source": "payments-service",
+      "version": "1.0",
+      "description": "Refund processed for payment",
+      "schema": {
+        "refund_id": "string",
+        "payment_id": "string",
+        "order_id": "string",
+        "amount": "number",
+        "reason": "string"
+      },
+      "consumers": ["notifications-service", "metrics-service", "compliance-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "DRIVER_ASSIGNED",
+      "source": "drivers-service",
+      "version": "1.0",
+      "description": "Driver assigned to delivery order",
+      "schema": {
+        "assignment_id": "string",
+        "driver_id": "string",
+        "order_id": "string",
+        "driver_name": "string"
+      },
+      "consumers": ["notifications-service", "orders-service", "metrics-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "DRIVER_LOCATION_UPDATED",
+      "source": "drivers-service",
+      "version": "1.0",
+      "description": "Driver location updated during delivery",
+      "schema": {
+        "driver_id": "string",
+        "order_id": "string",
+        "latitude": "number",
+        "longitude": "number",
+        "timestamp": "string"
+      },
+      "consumers": ["notifications-service"],
+      "priority": "medium"
+    },
+    {
+      "event_type": "DELIVERY_COMPLETED",
+      "source": "drivers-service",
+      "version": "1.0",
+      "description": "Delivery successfully completed by driver",
+      "schema": {
+        "assignment_id": "string",
+        "driver_id": "string",
+        "order_id": "string",
+        "delivered_at": "string"
+      },
+      "consumers": ["orders-service", "notifications-service", "metrics-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "SHIFT_STARTED",
+      "source": "staff-service",
+      "version": "1.0",
+      "description": "Staff member started shift",
+      "schema": {
+        "shift_id": "string",
+        "staff_id": "string",
+        "store_id": "string",
+        "staff_name": "string"
+      },
+      "consumers": ["metrics-service", "compliance-service"],
+      "priority": "low"
+    },
+    {
+      "event_type": "SHIFT_ENDED",
+      "source": "staff-service",
+      "version": "1.0",
+      "description": "Staff member ended shift",
+      "schema": {
+        "shift_id": "string",
+        "staff_id": "string",
+        "store_id": "string",
+        "duration_minutes": "number"
+      },
+      "consumers": ["metrics-service", "compliance-service"],
+      "priority": "low"
+    },
+    {
+      "event_type": "ROLE_CHANGED",
+      "source": "staff-service",
+      "version": "1.0",
+      "description": "Staff member role changed",
+      "schema": {
+        "staff_id": "string",
+        "from_role": "string",
+        "to_role": "string",
+        "changed_by": "string"
+      },
+      "consumers": ["audit-service", "compliance-service"],
+      "priority": "medium"
+    },
+    {
+      "event_type": "POLICY_CREATED",
+      "source": "compliance-service",
+      "version": "1.0",
+      "description": "New compliance policy created",
+      "schema": {
+        "policy_id": "string",
+        "policy_name": "string",
+        "policy_type": "string",
+        "effective_date": "string"
+      },
+      "consumers": ["notifications-service", "audit-service"],
+      "priority": "medium"
+    },
+    {
+      "event_type": "POLICY_UPDATED",
+      "source": "compliance-service",
+      "version": "1.0",
+      "description": "Compliance policy updated",
+      "schema": {
+        "policy_id": "string",
+        "version": "number",
+        "changes": "object",
+        "updated_by": "string"
+      },
+      "consumers": ["notifications-service", "audit-service"],
+      "priority": "high"
+    },
+    {
+      "event_type": "RISK_EVENT_DETECTED",
+      "source": "compliance-service",
+      "version": "1.0",
+      "description": "Risk event identified",
+      "schema": {
+        "risk_id": "string",
+        "risk_type": "string",
+        "severity": "string",
+        "title": "string",
+        "affected_entity_type": "string",
+        "affected_entity_id": "string"
+      },
+      "consumers": ["notifications-service", "metrics-service"],
+      "priority": "critical"
+    },
+    {
+      "event_type": "COMPLIANCE_VIOLATION",
+      "source": "compliance-service",
+      "version": "1.0",
+      "description": "Compliance violation detected",
+      "schema": {
+        "compliance_id": "string",
+        "regulation": "string",
+        "description": "string",
+        "severity": "string",
+        "related_entity_type": "string",
+        "related_entity_id": "string"
+      },
+      "consumers": ["notifications-service", "audit-service"],
+      "priority": "critical"
+    },
+    {
+      "event_type": "NOTIFICATION_SENT",
+      "source": "notifications-service",
+      "version": "1.0",
+      "description": "Notification successfully sent",
+      "schema": {
+        "notification_id": "string",
+        "recipient_id": "string",
+        "channel": "string",
+        "template": "string"
+      },
+      "consumers": ["metrics-service"],
+      "priority": "low"
+    },
+    {
+      "event_type": "NOTIFICATION_FAILED",
+      "source": "notifications-service",
+      "version": "1.0",
+      "description": "Notification delivery failed",
+      "schema": {
+        "notification_id": "string",
+        "recipient_id": "string",
+        "channel": "string",
+        "failure_reason": "string"
+      },
+      "consumers": ["metrics-service", "compliance-service"],
+      "priority": "medium"
+    }
+  ],
+  "envelope": {
+    "version": "1.0",
+    "description": "Standard event envelope for all GlenKeos events",
+    "schema": {
+      "event_id": "string (UUID)",
+      "event_type": "string",
+      "event_version": "string",
+      "event_source": "string",
+      "timestamp": "string (ISO 8601)",
+      "correlation_id": "string (UUID)",
+      "causation_id": "string (UUID, optional)",
+      "tenant_id": "string",
+      "metadata": {
+        "actor_id": "string (optional)",
+        "actor_type": "string (optional)",
+        "ip_address": "string (optional)",
+        "user_agent": "string (optional)"
+      },
+      "payload": "object (event-specific data)"
+    }
+  },
+  "routing_rules": [
+    {
+      "rule_name": "all-events-to-compliance",
+      "description": "Route all events to compliance service for audit trail",
+      "pattern": {
+        "source": ["*"]
+      },
+      "targets": ["compliance-service"]
+    },
+    {
+      "rule_name": "critical-events-to-metrics",
+      "description": "Route critical business events to metrics service",
+      "pattern": {
+        "detail-type": [
+          "ORDER_CREATED",
+          "ORDER_COMPLETED",
+          "PAYMENT_COMPLETED",
+          "PAYMENT_FAILED"
+        ]
+      },
+      "targets": ["metrics-service"]
+    },
+    {
+      "rule_name": "customer-notifications",
+      "description": "Route customer-facing events to notifications service",
+      "pattern": {
+        "detail-type": [
+          "ORDER_CREATED",
+          "ORDER_ACCEPTED",
+          "ORDER_READY",
+          "ORDER_OUT_FOR_DELIVERY",
+          "ORDER_COMPLETED",
+          "PAYMENT_COMPLETED",
+          "REWARD_EARNED"
+        ]
+      },
+      "targets": ["notifications-service"]
+    },
+    {
+      "rule_name": "inventory-alerts",
+      "description": "Route inventory alerts to notifications service",
+      "pattern": {
+        "detail-type": ["STOCK_LOW", "STOCK_CRITICAL"]
+      },
+      "targets": ["notifications-service"]
+    }
+  ]
+}

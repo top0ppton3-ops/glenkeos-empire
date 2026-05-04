@@ -1,0 +1,70 @@
+name: Deploy Supabase Migrations
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+
+jobs:
+  deploy-migrations:
+    runs-on: ubuntu-latest
+    name: Deploy RLS Policies and Migrations
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      
+      - name: Verify migration files
+        run: |
+          echo "📋 Migration files found:"
+          ls -lh supabase/migrations/
+          echo ""
+          echo "✅ Ready to deploy"
+      
+      - name: Link to Supabase project
+        run: |
+          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      
+      - name: Push migrations to database
+        run: |
+          echo "🚀 Deploying migrations..."
+          supabase db push --include-all
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      
+      - name: Verify deployment
+        run: |
+          echo "✅ Migration deployment complete!"
+          echo "📊 Checking migration status..."
+          supabase migration list --linked
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      
+      - name: Deployment summary
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ GlenKeos RLS Deployment Successful!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "Deployed to: beswluhdxaphtitaovly"
+          echo "Timestamp: $(date)"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo ""
+          echo "🎯 Next Steps:"
+          echo "  1. Configure JWT metadata for users"
+          echo "  2. Deploy PayPal environment variables"
+          echo "  3. Test RLS policies with sample data"
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

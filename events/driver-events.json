@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "DriverEvents",
+  "description": "Domain events for driver operations",
+  "definitions": {
+    "DRIVER_STATUS_CHANGED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "DRIVER_STATUS_CHANGED" },
+        "entityType": { "const": "driver" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "oldStatus": { "type": "string" },
+            "newStatus": { "type": "string" },
+            "reason": { "type": "string" }
+          },
+          "required": ["oldStatus", "newStatus"]
+        }
+      }
+    },
+    "DRIVER_LOCATION_UPDATED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "DRIVER_LOCATION_UPDATED" },
+        "entityType": { "const": "driver" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" },
+            "accuracy": { "type": "number" },
+            "currentOrderId": { "type": ["string", "null"] }
+          },
+          "required": ["latitude", "longitude"]
+        }
+      }
+    },
+    "DRIVER_ASSIGNED_ORDER": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "DRIVER_ASSIGNED_ORDER" },
+        "entityType": { "const": "driver" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "orderId": { "type": "string" },
+            "assignmentMethod": { "type": "string", "enum": ["MANUAL", "AUTO", "REQUESTED"] }
+          },
+          "required": ["orderId", "assignmentMethod"]
+        }
+      }
+    },
+    "DRIVER_COMPLETED_ORDER": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "DRIVER_COMPLETED_ORDER" },
+        "entityType": { "const": "driver" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "orderId": { "type": "string" },
+            "deliveryTime": { "type": "number" },
+            "rating": { "type": ["number", "null"] }
+          },
+          "required": ["orderId", "deliveryTime"]
+        }
+      }
+    }
+  }
+}

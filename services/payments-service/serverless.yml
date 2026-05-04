@@ -1,0 +1,110 @@
+service: glenkeos-payments-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'staging'}
+  region: ${opt:region, 'us-east-1'}
+  memorySize: 512
+  timeout: 30
+  
+  environment:
+    STAGE: ${self:provider.stage}
+    REGION: ${self:provider.region}
+    DB_HOST: ${ssm:/glenkeos/${self:provider.stage}/db/host}
+    DB_NAME: ${ssm:/glenkeos/${self:provider.stage}/db/name}
+    DB_USER: ${ssm:/glenkeos/${self:provider.stage}/db/user}
+    DB_PASSWORD: ${ssm:/glenkeos/${self:provider.stage}/db/password}
+    EVENTBUS_NAME: glenkeos-${self:provider.stage}-bus
+    PAYPAL_CLIENT_ID: ${ssm:/glenkeos/${self:provider.stage}/paypal/client-id}
+    PAYPAL_CLIENT_SECRET: ${ssm:/glenkeos/${self:provider.stage}/paypal/client-secret}
+    PAYPAL_MODE: ${ssm:/glenkeos/${self:provider.stage}/paypal/mode} # sandbox or live
+    PAYPAL_WEBHOOK_ID: ${ssm:/glenkeos/${self:provider.stage}/paypal/webhook-id}
+  
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource: !Sub arn:aws:events:${AWS::Region}:${AWS::AccountId}:event-bus/glenkeos-${self:provider.stage}-bus
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+          Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/glenkeos/${self:provider.stage}/*
+
+functions:
+  createOrder:
+    handler: src/handlers/payments.createOrder
+    events:
+      - http:
+          path: /payments/create-order
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  captureOrder:
+    handler: src/handlers/payments.captureOrder
+    events:
+      - http:
+          path: /payments/capture-order
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  getOrder:
+    handler: src/handlers/payments.getOrder
+    events:
+      - http:
+          path: /payments/orders/{orderId}
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  refundPayment:
+    handler: src/handlers/payments.refundPayment
+    events:
+      - http:
+          path: /payments/refund
+          method: post
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+  webhook:
+    handler: src/handlers/webhook.handleWebhook
+    events:
+      - http:
+          path: /payments/webhook
+          method: post
+          cors: false
+
+  listPayments:
+    handler: src/handlers/payments.listPayments
+    events:
+      - http:
+          path: /payments
+          method: get
+          cors: true
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: ${ssm:/glenkeos/${self:provider.stage}/cognito/authorizer-id}
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-typescript
+
+package:
+  individually: true
+  exclude:
+    - node_modules/**
+    - test/**

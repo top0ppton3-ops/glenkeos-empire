@@ -1,0 +1,94 @@
+gration Tests summary
+Vitest Test Report
+Summary
+Test Files: ✅ 1 pass · 1 total
+Test Results: ✅ 1 pass · 1 total
+Job summary generated at run-time
+Annotations
+23 errors and 17 warnings
+Unit Tests
+Process completed with exit code 1.
+TypeScript Type Check: src/app/components/feedback/Skeleton.tsx#L142
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+TypeScript Type Check: src/app/components/feedback/Skeleton.tsx#L119
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+TypeScript Type Check: src/app/components/feedback/Skeleton.tsx#L107
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+TypeScript Type Check: src/app/components/feedback/Skeleton.tsx#L83
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+TypeScript Type Check: src/app/components/feedback/Skeleton.tsx#L65
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+TypeScript Type Check: src/app/components/feedback/Skeleton.tsx#L48
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+TypeScript Type Check: src/app/components/core/Card.tsx#L61
+Type '{ children: Element[]; defaultChecked?: boolean; defaultValue?: string | number | readonly string[]; suppressContentEditableWarning?: boolean; suppressHydrationWarning?: boolean; accessKey?: string; ... 260 more ...; className: string; } | { ...; }' is not assignable to type 'IntrinsicAttributes & Omit<HTMLMotionProps<"div">, "ref"> & RefAttributes<HTMLDivElement> & ClassAttributes<...> & HTMLAttributes<...>'.
+TypeScript Type Check: src/app/components/core/Button.tsx#L79
+Type '{ children: (Element | ReactNode)[]; form?: string; formAction?: string; formEncType?: string; formMethod?: string; formNoValidate?: boolean; formTarget?: string; name?: string; ... 269 more ...; className: string; }' is not assignable to type 'Omit<HTMLMotionProps<"button">, "ref">'.
+TypeScript Type Check: src/app/components/core/Badge.tsx#L77
+Property 'bg' does not exist on type '{ bg: string; text: string; } | { bg: string; text: string; } | { border: string; text: string; } | { bg: string; text: string; } | { bg: string; text: string; } | { border: string; text: string; } | { bg: string; text: string; } | ... 10 more ... | { ...; }'.
+TypeScript Type Check: src/app/components/core/Badge.tsx#L72
+Property 'border' does not exist on type '{ bg: string; text: string; } | { bg: string; text: string; } | { border: string; text: string; } | { bg: string; text: string; } | { bg: string; text: string; } | { border: string; text: string; } | { bg: string; text: string; } | ... 10 more ... | { ...; }'.
+Lint & Format Check
+Process completed with exit code 1.
+Lint & Format Check: src/app/components/feedback/Skeleton.tsx#L142
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+Lint & Format Check: src/app/components/feedback/Skeleton.tsx#L119
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+Lint & Format Check: src/app/components/feedback/Skeleton.tsx#L107
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+Lint & Format Check: src/app/components/feedback/Skeleton.tsx#L83
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+Lint & Format Check: src/app/components/feedback/Skeleton.tsx#L65
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+Lint & Format Check: src/app/components/feedback/Skeleton.tsx#L48
+Type '{ duration: number; repeat: number; ease: string; }' is not assignable to type 'Transition<any>'.
+Lint & Format Check: src/app/components/core/Card.tsx#L61
+Type '{ children: Element[]; defaultChecked?: boolean; defaultValue?: string | number | readonly string[]; suppressContentEditableWarning?: boolean; suppressHydrationWarning?: boolean; accessKey?: string; ... 260 more ...; className: string; } | { ...; }' is not assignable to type 'IntrinsicAttributes & Omit<HTMLMotionProps<"div">, "ref"> & RefAttributes<HTMLDivElement> & ClassAttributes<...> & HTMLAttributes<...>'.
+Lint & Format Check: src/app/components/core/Button.tsx#L79
+Type '{ children: (Element | ReactNode)[]; form?: string; formAction?: string; formEncType?: string; formMethod?: string; formNoValidate?: boolean; formTarget?: string; name?: string; ... 269 more ...; className: string; }' is not assignable to type 'Omit<HTMLMotionProps<"button">, "ref">'.
+Lint & Format Check: src/app/components/core/Badge.tsx#L77
+Property 'bg' does not exist on type '{ bg: string; text: string; } | { bg: string; text: string; } | { border: string; text: string; } | { bg: string; text: string; } | { bg: string; text: string; } | { border: string; text: string; } | { bg: string; text: string; } | ... 10 more ... | { ...; }'.
+Lint & Format Check: src/app/components/core/Badge.tsx#L72
+Property 'border' does not exist on type '{ bg: string; text: string; } | { bg: string; text: string; } | { border: string; text: string; } | { bg: string; text: string; } | { bg: string; text: string; } | { border: string; text: string; } | { bg: string; text: string; } | ... 10 more ... | { ...; }'.
+E2E Tests (Playwright)
+Process completed with exit code 1.
+Database Migration Validation
+Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Integration Tests
+Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-node@v4, pnpm/action-setup@v2. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Unit Tests
+Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-node@v4, pnpm/action-setup@v2. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+TypeScript Type Check
+Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-node@v4, pnpm/action-setup@v2. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Security & Dependency Audit
+Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-node@v4, pnpm/action-setup@v2. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Lint & Format Check
+Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-node@v4, pnpm/action-setup@v2. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Lint & Format Check: EDGE_FUNCTION_CODE_TO_PASTE.ts#L238
+Unexpected any. Specify a different type
+Lint & Format Check: EDGE_FUNCTION_CODE_TO_PASTE.ts#L209
+Unexpected any. Specify a different type
+Lint & Format Check: EDGE_FUNCTION_CODE_TO_PASTE.ts#L198
+Unexpected any. Specify a different type
+Lint & Format Check: EDGE_FUNCTION_CODE_TO_PASTE.ts#L181
+Unexpected any. Specify a different type
+Lint & Format Check: EDGE_FUNCTION_CODE_TO_PASTE.ts#L165
+Unexpected any. Specify a different type
+Lint & Format Check: EDGE_FUNCTION_CODE_TO_PASTE.ts#L136
+Unexpected any. Specify a different type
+Lint & Format Check: EDGE_FUNCTION_CODE_TO_PASTE.ts#L61
+Unexpected any. Specify a different type
+Lint & Format Check: EDGE_FUNCTION_CODE_TO_PASTE.ts#L45
+Unexpected any. Specify a different type
+Lint & Format Check: EDGE_FUNCTION_CODE_TO_PASTE.ts#L34
+Unexpected any. Specify a different type
+Lint & Format Check: EDGE_FUNCTION_CODE_TO_PASTE.ts#L24
+Unexpected any. Specify a different type
+E2E Tests (Playwright)
+Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4, pnpm/action-setup@v2. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Artifacts
+Produced during runtime
+Name	Size	Digest	
+playwright-report
+190 KB	
+sha256:76dab30ced6dbd47ea7a0ea1ac58fab0b998610ae8f6e6515d5684dfcc7d7b81

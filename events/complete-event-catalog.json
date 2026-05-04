@@ -1,0 +1,563 @@
+{
+  "eventCatalog": {
+    "version": "1.0.0",
+    "description": "Complete event catalog for GlenKeos Platform - 29 event types",
+    "eventBusName": "glenkeos-bus",
+    "events": [
+      {
+        "eventType": "STORE_CREATED",
+        "source": "stores-service",
+        "description": "Fired when a new store is created",
+        "schema": {
+          "type": "object",
+          "required": ["store_id", "brand_id", "name"],
+          "properties": {
+            "store_id": { "type": "string", "format": "uuid" },
+            "brand_id": { "type": "string" },
+            "name": { "type": "string" },
+            "address": { "type": "object" },
+            "capabilities": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service"],
+        "priority": "MEDIUM"
+      },
+      {
+        "eventType": "STORE_UPDATED",
+        "source": "stores-service",
+        "description": "Fired when store details are updated",
+        "schema": {
+          "type": "object",
+          "required": ["store_id"],
+          "properties": {
+            "store_id": { "type": "string" },
+            "changes": { "type": "object" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service"],
+        "priority": "LOW"
+      },
+      {
+        "eventType": "STORE_STATUS_CHANGED",
+        "source": "stores-service",
+        "description": "Fired when store status changes (ACTIVE, INACTIVE, MAINTENANCE)",
+        "schema": {
+          "type": "object",
+          "required": ["store_id", "old_status", "new_status"],
+          "properties": {
+            "store_id": { "type": "string" },
+            "old_status": { "type": "string" },
+            "new_status": { "type": "string" },
+            "reason": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service", "notifications-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "CUSTOMER_CREATED",
+        "source": "customers-service",
+        "description": "Fired when a new customer registers",
+        "schema": {
+          "type": "object",
+          "required": ["customer_id", "email"],
+          "properties": {
+            "customer_id": { "type": "string" },
+            "email": { "type": "string" },
+            "phone": { "type": "string" },
+            "first_name": { "type": "string" },
+            "last_name": { "type": "string" },
+            "referral_code": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service", "notifications-service"],
+        "priority": "MEDIUM"
+      },
+      {
+        "eventType": "REWARD_EARNED",
+        "source": "customers-service",
+        "description": "Fired when customer earns reward points",
+        "schema": {
+          "type": "object",
+          "required": ["customer_id", "points", "reason"],
+          "properties": {
+            "customer_id": { "type": "string" },
+            "points": { "type": "integer" },
+            "reason": { "type": "string" },
+            "order_id": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "notifications-service"],
+        "priority": "LOW"
+      },
+      {
+        "eventType": "REFERRAL_COMPLETED",
+        "source": "customers-service",
+        "description": "Fired when a referral is successfully completed",
+        "schema": {
+          "type": "object",
+          "required": ["referrer_id", "referred_id"],
+          "properties": {
+            "referrer_id": { "type": "string" },
+            "referred_id": { "type": "string" },
+            "reward_points": { "type": "integer" }
+          }
+        },
+        "consumers": ["metrics-service", "notifications-service"],
+        "priority": "LOW"
+      },
+      {
+        "eventType": "ORDER_CREATED",
+        "source": "orders-service",
+        "description": "Fired when a new order is created",
+        "schema": {
+          "type": "object",
+          "required": ["order_id", "customer_id", "store_id", "total_amount"],
+          "properties": {
+            "order_id": { "type": "string" },
+            "customer_id": { "type": "string" },
+            "store_id": { "type": "string" },
+            "items": { "type": "array" },
+            "total_amount": { "type": "number" },
+            "delivery_type": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service", "notifications-service", "inventory-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "ORDER_ACCEPTED",
+        "source": "orders-service",
+        "description": "Fired when an order is accepted by the store",
+        "schema": {
+          "type": "object",
+          "required": ["order_id", "accepted_by", "estimated_prep_time"],
+          "properties": {
+            "order_id": { "type": "string" },
+            "accepted_by": { "type": "string" },
+            "estimated_prep_time": { "type": "integer" }
+          }
+        },
+        "consumers": ["metrics-service", "notifications-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "ORDER_PREPARED",
+        "source": "orders-service",
+        "description": "Fired when order preparation is complete",
+        "schema": {
+          "type": "object",
+          "required": ["order_id"],
+          "properties": {
+            "order_id": { "type": "string" },
+            "actual_prep_time": { "type": "integer" }
+          }
+        },
+        "consumers": ["metrics-service", "notifications-service", "drivers-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "ORDER_OUT_FOR_DELIVERY",
+        "source": "orders-service",
+        "description": "Fired when order is out for delivery",
+        "schema": {
+          "type": "object",
+          "required": ["order_id", "driver_id"],
+          "properties": {
+            "order_id": { "type": "string" },
+            "driver_id": { "type": "string" },
+            "estimated_delivery_time": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "notifications-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "ORDER_COMPLETED",
+        "source": "orders-service",
+        "description": "Fired when order is successfully completed",
+        "schema": {
+          "type": "object",
+          "required": ["order_id"],
+          "properties": {
+            "order_id": { "type": "string" },
+            "completed_at": { "type": "string" },
+            "total_time_minutes": { "type": "integer" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service", "customers-service", "notifications-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "ORDER_CANCELLED",
+        "source": "orders-service",
+        "description": "Fired when an order is cancelled",
+        "schema": {
+          "type": "object",
+          "required": ["order_id", "reason"],
+          "properties": {
+            "order_id": { "type": "string" },
+            "reason": { "type": "string" },
+            "cancelled_by": { "type": "string" },
+            "refund_initiated": { "type": "boolean" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service", "notifications-service", "payments-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "PAYMENT_CREATED",
+        "source": "payments-service",
+        "description": "Fired when a PayPal order is created",
+        "schema": {
+          "type": "object",
+          "required": ["payment_id", "order_id", "paypal_order_id", "amount"],
+          "properties": {
+            "payment_id": { "type": "string" },
+            "order_id": { "type": "string" },
+            "customer_id": { "type": "string" },
+            "paypal_order_id": { "type": "string" },
+            "amount": { "type": "number" },
+            "currency": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "PAYMENT_AUTHORIZED",
+        "source": "payments-service",
+        "description": "Fired when payment is authorized but not yet captured",
+        "schema": {
+          "type": "object",
+          "required": ["payment_id", "paypal_order_id"],
+          "properties": {
+            "payment_id": { "type": "string" },
+            "paypal_order_id": { "type": "string" },
+            "authorization_id": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "PAYMENT_COMPLETED",
+        "source": "payments-service",
+        "description": "Fired when payment is successfully captured",
+        "schema": {
+          "type": "object",
+          "required": ["payment_id", "order_id", "amount"],
+          "properties": {
+            "payment_id": { "type": "string" },
+            "order_id": { "type": "string" },
+            "customer_id": { "type": "string" },
+            "paypal_capture_id": { "type": "string" },
+            "amount": { "type": "number" },
+            "currency": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service", "orders-service", "notifications-service"],
+        "priority": "CRITICAL"
+      },
+      {
+        "eventType": "PAYMENT_FAILED",
+        "source": "payments-service",
+        "description": "Fired when payment capture fails",
+        "schema": {
+          "type": "object",
+          "required": ["payment_id", "error"],
+          "properties": {
+            "payment_id": { "type": "string" },
+            "order_id": { "type": "string" },
+            "paypal_order_id": { "type": "string" },
+            "error": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service", "orders-service", "notifications-service"],
+        "priority": "CRITICAL"
+      },
+      {
+        "eventType": "REFUND_ISSUED",
+        "source": "payments-service",
+        "description": "Fired when a refund is processed",
+        "schema": {
+          "type": "object",
+          "required": ["refund_id", "payment_id", "amount"],
+          "properties": {
+            "refund_id": { "type": "string" },
+            "payment_id": { "type": "string" },
+            "paypal_refund_id": { "type": "string" },
+            "amount": { "type": "number" },
+            "currency": { "type": "string" },
+            "reason": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service", "notifications-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "STOCK_LOW",
+        "source": "inventory-service",
+        "description": "Fired when inventory falls below threshold",
+        "schema": {
+          "type": "object",
+          "required": ["item_id", "store_id", "current_quantity", "threshold"],
+          "properties": {
+            "item_id": { "type": "string" },
+            "store_id": { "type": "string" },
+            "item_name": { "type": "string" },
+            "current_quantity": { "type": "integer" },
+            "threshold": { "type": "integer" }
+          }
+        },
+        "consumers": ["metrics-service", "notifications-service"],
+        "priority": "MEDIUM"
+      },
+      {
+        "eventType": "ITEM_UNAVAILABLE",
+        "source": "inventory-service",
+        "description": "Fired when item is out of stock",
+        "schema": {
+          "type": "object",
+          "required": ["item_id", "store_id"],
+          "properties": {
+            "item_id": { "type": "string" },
+            "store_id": { "type": "string" },
+            "item_name": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "notifications-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "MENU_UPDATED",
+        "source": "inventory-service",
+        "description": "Fired when menu items or availability changes",
+        "schema": {
+          "type": "object",
+          "required": ["store_id"],
+          "properties": {
+            "store_id": { "type": "string" },
+            "changes": { "type": "array" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service"],
+        "priority": "LOW"
+      },
+      {
+        "eventType": "DRIVER_ASSIGNED",
+        "source": "drivers-service",
+        "description": "Fired when a driver is assigned to an order",
+        "schema": {
+          "type": "object",
+          "required": ["assignment_id", "driver_id", "order_id"],
+          "properties": {
+            "assignment_id": { "type": "string" },
+            "driver_id": { "type": "string" },
+            "order_id": { "type": "string" },
+            "estimated_pickup_time": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "orders-service", "notifications-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "DRIVER_LOCATION_UPDATED",
+        "source": "drivers-service",
+        "description": "Fired when driver location is updated",
+        "schema": {
+          "type": "object",
+          "required": ["driver_id", "lat", "lng"],
+          "properties": {
+            "driver_id": { "type": "string" },
+            "order_id": { "type": "string" },
+            "lat": { "type": "number" },
+            "lng": { "type": "number" },
+            "timestamp": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service"],
+        "priority": "LOW"
+      },
+      {
+        "eventType": "DELIVERY_COMPLETED",
+        "source": "drivers-service",
+        "description": "Fired when delivery is completed",
+        "schema": {
+          "type": "object",
+          "required": ["assignment_id", "driver_id", "order_id"],
+          "properties": {
+            "assignment_id": { "type": "string" },
+            "driver_id": { "type": "string" },
+            "order_id": { "type": "string" },
+            "delivery_time_minutes": { "type": "integer" }
+          }
+        },
+        "consumers": ["metrics-service", "orders-service", "notifications-service"],
+        "priority": "HIGH"
+      },
+      {
+        "eventType": "SHIFT_STARTED",
+        "source": "staff-service",
+        "description": "Fired when staff member starts shift",
+        "schema": {
+          "type": "object",
+          "required": ["shift_id", "staff_id", "store_id"],
+          "properties": {
+            "shift_id": { "type": "string" },
+            "staff_id": { "type": "string" },
+            "store_id": { "type": "string" },
+            "role": { "type": "string" },
+            "started_at": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service"],
+        "priority": "LOW"
+      },
+      {
+        "eventType": "SHIFT_ENDED",
+        "source": "staff-service",
+        "description": "Fired when staff member ends shift",
+        "schema": {
+          "type": "object",
+          "required": ["shift_id", "staff_id"],
+          "properties": {
+            "shift_id": { "type": "string" },
+            "staff_id": { "type": "string" },
+            "ended_at": { "type": "string" },
+            "duration_hours": { "type": "number" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service"],
+        "priority": "LOW"
+      },
+      {
+        "eventType": "ROLE_CHANGED",
+        "source": "staff-service",
+        "description": "Fired when staff member role is changed",
+        "schema": {
+          "type": "object",
+          "required": ["staff_id", "old_role", "new_role"],
+          "properties": {
+            "staff_id": { "type": "string" },
+            "old_role": { "type": "string" },
+            "new_role": { "type": "string" },
+            "changed_by": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service"],
+        "priority": "MEDIUM"
+      },
+      {
+        "eventType": "COMPLIANCE_VIOLATION",
+        "source": "compliance-service",
+        "description": "Fired when a compliance violation is detected",
+        "schema": {
+          "type": "object",
+          "required": ["violation_id", "policy_id", "severity"],
+          "properties": {
+            "violation_id": { "type": "string" },
+            "policy_id": { "type": "string" },
+            "entity_type": { "type": "string" },
+            "entity_id": { "type": "string" },
+            "severity": { "type": "string" },
+            "description": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "notifications-service"],
+        "priority": "CRITICAL"
+      },
+      {
+        "eventType": "POLICY_UPDATED",
+        "source": "compliance-service",
+        "description": "Fired when a compliance policy is updated",
+        "schema": {
+          "type": "object",
+          "required": ["policy_id", "version"],
+          "properties": {
+            "policy_id": { "type": "string" },
+            "version": { "type": "string" },
+            "changes": { "type": "object" },
+            "updated_by": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service"],
+        "priority": "MEDIUM"
+      },
+      {
+        "eventType": "NOTIFICATION_SENT",
+        "source": "notifications-service",
+        "description": "Fired when a notification is sent",
+        "schema": {
+          "type": "object",
+          "required": ["notification_id", "recipient_id", "channel"],
+          "properties": {
+            "notification_id": { "type": "string" },
+            "recipient_id": { "type": "string" },
+            "channel": { "type": "string" },
+            "template": { "type": "string" },
+            "status": { "type": "string" }
+          }
+        },
+        "consumers": ["metrics-service", "compliance-service"],
+        "priority": "LOW"
+      }
+    ],
+    "eventRouting": {
+      "rules": [
+        {
+          "name": "RouteToMetrics",
+          "description": "Route all events to metrics service for analytics",
+          "eventPattern": {
+            "source": [
+              "stores-service",
+              "customers-service",
+              "orders-service",
+              "payments-service",
+              "inventory-service",
+              "drivers-service",
+              "staff-service",
+              "compliance-service",
+              "notifications-service"
+            ]
+          },
+          "targets": ["metrics-service"]
+        },
+        {
+          "name": "RouteToCompliance",
+          "description": "Route critical events to compliance service",
+          "eventPattern": {
+            "detail": {
+              "priority": ["HIGH", "CRITICAL"]
+            }
+          },
+          "targets": ["compliance-service"]
+        },
+        {
+          "name": "RouteToNotifications",
+          "description": "Route customer-facing events to notifications service",
+          "eventPattern": {
+            "detail-type": [
+              "ORDER_CREATED",
+              "ORDER_ACCEPTED",
+              "ORDER_OUT_FOR_DELIVERY",
+              "ORDER_COMPLETED",
+              "PAYMENT_COMPLETED",
+              "PAYMENT_FAILED"
+            ]
+          },
+          "targets": ["notifications-service"]
+        }
+      ]
+    },
+    "dlqConfiguration": {
+      "enabled": true,
+      "maxReceiveCount": 3,
+      "retentionPeriod": 1209600
+    },
+    "archiveConfiguration": {
+      "enabled": true,
+      "retentionDays": 90
+    }
+  }
+}

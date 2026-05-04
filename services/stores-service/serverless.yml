@@ -1,0 +1,154 @@
+service: glenkeos-stores-service
+
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ${opt:region, 'us-east-2'}
+  stage: ${opt:stage, 'staging'}
+  memorySize: 512
+  timeout: 30
+
+  environment:
+    AWS_REGION: ${self:provider.region}
+    STAGE: ${self:provider.stage}
+    DB_SECRET_NAME: glenkeos/${self:provider.stage}/database/master-password
+    EVENT_BUS_NAME: glenkeos-${self:provider.stage}
+
+  iam:
+    role:
+      statements:
+        # Secrets Manager access
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource:
+            - arn:aws:secretsmanager:${self:provider.region}:*:secret:glenkeos/${self:provider.stage}/database/*
+
+        # EventBridge access
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource:
+            - arn:aws:events:${self:provider.region}:*:event-bus/glenkeos-${self:provider.stage}
+
+        # CloudWatch Logs (implicit, but explicit for clarity)
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource:
+            - arn:aws:logs:${self:provider.region}:*:log-group:/aws/lambda/glenkeos-stores-*
+
+plugins:
+  - serverless-esbuild
+  - serverless-offline
+
+custom:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    exclude:
+      - aws-sdk
+      - '@aws-sdk/*'
+    target: node20
+    platform: node
+
+functions:
+  createStore:
+    handler: src/handlers/stores.create
+    events:
+      - httpApi:
+          path: /v1/stores
+          method: POST
+          authorizer:
+            type: jwt
+            id: !Ref CognitoAuthorizer
+
+  getStore:
+    handler: src/handlers/stores.get
+    events:
+      - httpApi:
+          path: /v1/stores/{id}
+          method: GET
+          authorizer:
+            type: jwt
+            id: !Ref CognitoAuthorizer
+
+  listStores:
+    handler: src/handlers/stores.list
+    events:
+      - httpApi:
+          path: /v1/stores
+          method: GET
+          authorizer:
+            type: jwt
+            id: !Ref CognitoAuthorizer
+
+  updateStore:
+    handler: src/handlers/stores.update
+    events:
+      - httpApi:
+          path: /v1/stores/{id}
+          method: PUT
+          authorizer:
+            type: jwt
+            id: !Ref CognitoAuthorizer
+
+  optionsStore:
+    handler: src/handlers/stores.options
+    events:
+      - httpApi:
+          path: /v1/stores
+          method: OPTIONS
+      - httpApi:
+          path: /v1/stores/{id}
+          method: OPTIONS
+
+resources:
+  Resources:
+    # Cognito JWT Authorizer
+    CognitoAuthorizer:
+      Type: AWS::ApiGatewayV2::Authorizer
+      Properties:
+        ApiId: !Ref HttpApi
+        AuthorizerType: JWT
+        IdentitySource:
+          - $request.header.Authorization
+        JwtConfiguration:
+          Audience:
+            - !Ref CognitoUserPoolClient
+          Issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${CognitoUserPool}
+        Name: CognitoAuthorizer
+
+    # Reference existing Cognito User Pool
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: glenkeos-${self:provider.stage}
+
+    CognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: glenkeos-api-client
+        UserPoolId: !Ref CognitoUserPool
+        ExplicitAuthFlows:
+          - ALLOW_USER_PASSWORD_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        GenerateSecret: false
+
+  Outputs:
+    ApiUrl:
+      Description: API Gateway endpoint URL
+      Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com
+
+    CognitoUserPoolId:
+      Description: Cognito User Pool ID
+      Value: !Ref CognitoUserPool
+
+    CognitoUserPoolClientId:
+      Description: Cognito User Pool Client ID
+      Value: !Ref CognitoUserPoolClient

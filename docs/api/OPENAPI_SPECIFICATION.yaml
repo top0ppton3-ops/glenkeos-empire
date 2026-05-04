@@ -1,0 +1,894 @@
+openapi: 3.1.0
+info:
+  title: GlenKeos Enterprise API
+  version: 1.0.0-enterprise
+  description: |
+    Complete API specification for GlenKeos multi-brand restaurant platform.
+
+    **Brands**:
+    - Chic-on-Chain: Premium dining
+    - Ghetto Eats: Fast delivery
+    - GoldKey: VIP concierge
+
+    **Architecture**:
+    - Frontend: Vercel (React + TypeScript)
+    - Backend: Supabase (PostgreSQL + Edge Functions)
+    - Auth: JWT-based with role-based access control
+    - Tenancy: Hard isolation with corporate override
+
+    **Security**:
+    - All endpoints require authentication (JWT Bearer token)
+    - Row-level security enforced at database level
+    - Rate limiting: 100 requests / 10 seconds per IP
+
+    **Base URLs**:
+    - Production: https://beswluhdxaphtitaovly.supabase.co
+    - API: https://beswluhdxaphtitaovly.supabase.co/rest/v1
+    - Functions: https://beswluhdxaphtitaovly.supabase.co/functions/v1
+
+  contact:
+    name: GlenKeos Engineering
+    email: engineering@glenkeos.com
+    url: https://glenkeos.com
+  license:
+    name: Proprietary
+    url: https://glenkeos.com/legal/license
+
+servers:
+  - url: https://beswluhdxaphtitaovly.supabase.co/rest/v1
+    description: Production API (PostgREST)
+  - url: https://beswluhdxaphtitaovly.supabase.co/functions/v1
+    description: Edge Functions (Deno)
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Orders
+    description: Order management and lifecycle
+  - name: Customers
+    description: Customer profiles and authentication
+  - name: Stores
+    description: Store locations and configuration
+  - name: Menu
+    description: Menu items and availability
+  - name: Inventory
+    description: Real-time inventory tracking
+  - name: Drivers
+    description: Delivery fleet management
+  - name: Payments
+    description: Payment processing and reconciliation
+  - name: Notifications
+    description: Multi-channel notifications
+  - name: Analytics
+    description: Business intelligence and reporting
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token issued by Supabase Auth.
+
+        Token structure:
+        ```json
+        {
+          "sub": "user-uuid",
+          "tenant_id": "chic-on-chain-001",
+          "role": "MANAGER",
+          "email": "user@example.com",
+          "exp": 1735689600
+        }
+        ```
+
+  schemas:
+    # ========================================
+    # Core Entities
+    # ========================================
+
+    Store:
+      type: object
+      required: [store_id, tenant_id, name, brand, address, city, state, zip_code]
+      properties:
+        store_id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        tenant_id:
+          type: string
+          example: "chic-on-chain-001"
+        name:
+          type: string
+          example: "Chic-on-Chain Downtown SF"
+        brand:
+          type: string
+          enum: [chic-on-chain, ghetto-eats, goldkey]
+        address:
+          type: string
+          example: "123 Market St"
+        city:
+          type: string
+          example: "San Francisco"
+        state:
+          type: string
+          pattern: '^[A-Z]{2}$'
+          example: "CA"
+        zip_code:
+          type: string
+          example: "94105"
+        phone:
+          type: string
+          pattern: '^\+?[1-9]\d{1,14}$'
+          example: "+14155551234"
+        email:
+          type: string
+          format: email
+          example: "downtown-sf@chic-on-chain.com"
+        location:
+          $ref: '#/components/schemas/GeoPoint'
+        opening_hours:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              open:
+                type: string
+                example: "09:00"
+              close:
+                type: string
+                example: "22:00"
+          example:
+            monday: {open: "09:00", close: "22:00"}
+            tuesday: {open: "09:00", close: "22:00"}
+        is_active:
+          type: boolean
+          default: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Customer:
+      type: object
+      required: [customer_id, tenant_id, email]
+      properties:
+        customer_id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+          description: Links to Supabase auth.users
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        phone:
+          type: string
+          pattern: '^\+?[1-9]\d{1,14}$'
+        delivery_addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeliveryAddress'
+        payment_methods:
+          type: array
+          items:
+            type: string
+            description: Payment method IDs from payment processor
+        preferences:
+          type: object
+          properties:
+            dietary_restrictions:
+              type: array
+              items:
+                type: string
+            favorite_items:
+              type: array
+              items:
+                type: string
+        loyalty_points:
+          type: integer
+          minimum: 0
+          default: 0
+        is_active:
+          type: boolean
+          default: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Order:
+      type: object
+      required: [id, tenant_id, order_number, status, total_amount]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+        customer_id:
+          type: string
+          format: uuid
+        store_id:
+          type: string
+          format: uuid
+        order_number:
+          type: string
+          pattern: '^[A-Z]{2,3}-\d{4}-\d{5}$'
+          example: "GE-2026-00001"
+        status:
+          type: string
+          enum: [PENDING, CONFIRMED, PREPARING, READY, IN_DELIVERY, DELIVERED, CANCELLED]
+        order_type:
+          type: string
+          enum: [DELIVERY, PICKUP, DINE_IN]
+          default: DELIVERY
+        total_amount:
+          type: number
+          format: decimal
+          minimum: 0
+          example: 45.99
+        subtotal:
+          type: number
+          format: decimal
+        tax_amount:
+          type: number
+          format: decimal
+        delivery_fee:
+          type: number
+          format: decimal
+        tip_amount:
+          type: number
+          format: decimal
+        discount_amount:
+          type: number
+          format: decimal
+        payment_status:
+          type: string
+          enum: [PENDING, AUTHORIZED, CAPTURED, FAILED, REFUNDED]
+        payment_method:
+          type: string
+          enum: [paypal, stripe, cash]
+        payment_id:
+          type: string
+          description: External payment processor transaction ID
+        delivery_address:
+          $ref: '#/components/schemas/DeliveryAddress'
+        delivery_instructions:
+          type: string
+          maxLength: 500
+        estimated_delivery_time:
+          type: string
+          format: date-time
+        actual_delivery_time:
+          type: string
+          format: date-time
+        driver_id:
+          type: string
+          format: uuid
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    OrderItem:
+      type: object
+      required: [id, tenant_id, order_id, menu_item_id, quantity, unit_price, total_price]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+        order_id:
+          type: string
+          format: uuid
+        menu_item_id:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+        unit_price:
+          type: number
+          format: decimal
+        total_price:
+          type: number
+          format: decimal
+        customizations:
+          type: object
+          example: {extra_cheese: true, no_onions: true}
+        preparation_status:
+          type: string
+          enum: [PENDING, PREPARING, READY, SERVED]
+        created_at:
+          type: string
+          format: date-time
+
+    MenuItem:
+      type: object
+      required: [item_id, tenant_id, name, price]
+      properties:
+        item_id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+        store_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 255
+          example: "Classic Cheeseburger"
+        description:
+          type: string
+          example: "Angus beef patty with cheddar, lettuce, tomato"
+        category:
+          type: string
+          enum: [entree, appetizer, dessert, beverage, side]
+        price:
+          type: number
+          format: decimal
+          minimum: 0
+          example: 12.99
+        cost:
+          type: number
+          format: decimal
+          description: Cost of goods sold (COGS)
+        image_url:
+          type: string
+          format: uri
+        is_available:
+          type: boolean
+          default: true
+        dietary_tags:
+          type: array
+          items:
+            type: string
+            enum: [vegetarian, vegan, gluten-free, dairy-free, nut-free, halal, kosher]
+        prep_time_minutes:
+          type: integer
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Driver:
+      type: object
+      required: [driver_id, tenant_id, first_name, last_name, phone, email]
+      properties:
+        driver_id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        vehicle_type:
+          type: string
+          enum: [car, bike, scooter, motorcycle]
+        license_plate:
+          type: string
+        current_location:
+          $ref: '#/components/schemas/GeoPoint'
+        is_active:
+          type: boolean
+        is_online:
+          type: boolean
+          description: Available for deliveries
+        rating:
+          type: number
+          format: decimal
+          minimum: 0
+          maximum: 5
+        total_deliveries:
+          type: integer
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Notification:
+      type: object
+      required: [id, tenant_id, recipient_id, recipient_type, type, title, message]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+        recipient_id:
+          type: string
+        recipient_type:
+          type: string
+          enum: [CUSTOMER, DRIVER, STAFF, ADMIN]
+        type:
+          type: string
+          enum: [ORDER_CONFIRMED, ORDER_READY, DRIVER_ASSIGNED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED, PAYMENT_RECEIVED, LOW_INVENTORY, SYSTEM_ALERT]
+        title:
+          type: string
+        message:
+          type: string
+        data:
+          type: object
+          description: Additional context (order_id, etc.)
+        is_read:
+          type: boolean
+          default: false
+        sent_via:
+          type: array
+          items:
+            type: string
+            enum: [email, sms, push, in-app]
+        created_at:
+          type: string
+          format: date-time
+
+    # ========================================
+    # Supporting Types
+    # ========================================
+
+    DeliveryAddress:
+      type: object
+      required: [street, city, state, zip_code]
+      properties:
+        label:
+          type: string
+          example: "Home"
+        street:
+          type: string
+          example: "456 Oak Ave"
+        apt:
+          type: string
+          example: "Apt 3B"
+        city:
+          type: string
+          example: "San Francisco"
+        state:
+          type: string
+          pattern: '^[A-Z]{2}$'
+        zip_code:
+          type: string
+        delivery_instructions:
+          type: string
+          example: "Ring doorbell twice"
+
+    GeoPoint:
+      type: object
+      required: [type, coordinates]
+      properties:
+        type:
+          type: string
+          enum: [Point]
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+          example: [-122.4194, 37.7749] # [longitude, latitude]
+
+    # ========================================
+    # Response Types
+    # ========================================
+
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          example: "ValidationError"
+        message:
+          type: string
+          example: "Invalid order status transition"
+        details:
+          type: object
+        code:
+          type: integer
+          example: 400
+        timestamp:
+          type: string
+          format: date-time
+
+    PaginatedResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: {}
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+            page:
+              type: integer
+            per_page:
+              type: integer
+            total_pages:
+              type: integer
+
+# ============================================
+# API ENDPOINTS
+# ============================================
+
+paths:
+  # ========================================
+  # Orders API
+  # ========================================
+
+  /orders:
+    get:
+      summary: List orders
+      tags: [Orders]
+      description: Retrieve paginated list of orders. Filtered by tenant_id via RLS.
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING, CONFIRMED, PREPARING, READY, IN_DELIVERY, DELIVERED, CANCELLED]
+        - name: store_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: customer_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 25
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: order
+          in: query
+          description: Sort order (created_at.desc or created_at.asc)
+          schema:
+            type: string
+            default: "created_at.desc"
+      responses:
+        '200':
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create order
+      tags: [Orders]
+      description: Create a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tenant_id, customer_id, store_id, items]
+              properties:
+                tenant_id:
+                  type: string
+                customer_id:
+                  type: string
+                  format: uuid
+                store_id:
+                  type: string
+                  format: uuid
+                order_type:
+                  type: string
+                  enum: [DELIVERY, PICKUP, DINE_IN]
+                delivery_address:
+                  $ref: '#/components/schemas/DeliveryAddress'
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required: [menu_item_id, quantity]
+                    properties:
+                      menu_item_id:
+                        type: string
+                        format: uuid
+                      quantity:
+                        type: integer
+                        minimum: 1
+                      customizations:
+                        type: object
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /orders/{id}:
+    get:
+      summary: Get order by ID
+      tags: [Orders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: Order not found
+
+    patch:
+      summary: Update order
+      tags: [Orders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [PENDING, CONFIRMED, PREPARING, READY, IN_DELIVERY, DELIVERED, CANCELLED]
+                driver_id:
+                  type: string
+                  format: uuid
+                estimated_delivery_time:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  # ========================================
+  # Customers API
+  # ========================================
+
+  /customers:
+    get:
+      summary: List customers
+      tags: [Customers]
+      responses:
+        '200':
+          description: List of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+
+    post:
+      summary: Create customer
+      tags: [Customers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tenant_id, email, first_name, last_name]
+              properties:
+                tenant_id:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                phone:
+                  type: string
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+  # ========================================
+  # Menu API
+  # ========================================
+
+  /menu_items:
+    get:
+      summary: List menu items
+      tags: [Menu]
+      parameters:
+        - name: store_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: is_available
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of menu items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItem'
+
+  # ========================================
+  # Drivers API
+  # ========================================
+
+  /drivers:
+    get:
+      summary: List drivers
+      tags: [Drivers]
+      parameters:
+        - name: is_online
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of drivers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Driver'
+
+  /drivers/{id}/location:
+    patch:
+      summary: Update driver location
+      tags: [Drivers]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeoPoint'
+      responses:
+        '200':
+          description: Location updated
+
+  # ========================================
+  # Edge Functions (Payments)
+  # ========================================
+
+  /create-paypal-order:
+    post:
+      summary: Create PayPal payment order
+      tags: [Payments]
+      description: Edge Function to create PayPal order (handled via Supabase Edge Functions)
+      servers:
+        - url: https://beswluhdxaphtitaovly.supabase.co/functions/v1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id, amount]
+              properties:
+                order_id:
+                  type: string
+                  format: uuid
+                amount:
+                  type: number
+                  format: decimal
+                currency:
+                  type: string
+                  default: "USD"
+      responses:
+        '200':
+          description: PayPal order created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+                  links:
+                    type: array
+                    items:
+                      type: object
+
+# ============================================
+# END OF SPECIFICATION
+# ============================================

@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "OrderEvents",
+  "description": "Domain events for order lifecycle",
+  "definitions": {
+    "ORDER_CREATED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ORDER_CREATED" },
+        "entityType": { "const": "order" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "storeId": { "type": "string" },
+            "customerId": { "type": "string" },
+            "items": { "type": "array" },
+            "total": { "type": "number" }
+          },
+          "required": ["storeId", "customerId", "items", "total"]
+        }
+      }
+    },
+    "ORDER_STATUS_CHANGED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ORDER_STATUS_CHANGED" },
+        "entityType": { "const": "order" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "oldStatus": { "type": "string" },
+            "newStatus": { "type": "string" },
+            "reason": { "type": "string" }
+          },
+          "required": ["oldStatus", "newStatus"]
+        }
+      }
+    },
+    "ORDER_ASSIGNED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ORDER_ASSIGNED" },
+        "entityType": { "const": "order" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "driverId": { "type": "string" },
+            "assignmentReason": { "type": "string" },
+            "estimatedDeliveryTime": { "type": "string", "format": "date-time" }
+          },
+          "required": ["driverId"]
+        }
+      }
+    },
+    "ORDER_CANCELLED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ORDER_CANCELLED" },
+        "entityType": { "const": "order" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "reason": { "type": "string" },
+            "cancelledBy": { "type": "string" },
+            "refundAmount": { "type": "number" }
+          },
+          "required": ["reason", "cancelledBy"]
+        }
+      }
+    },
+    "ORDER_DELIVERED": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "ORDER_DELIVERED" },
+        "entityType": { "const": "order" },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "deliveredAt": { "type": "string", "format": "date-time" },
+            "driverId": { "type": "string" },
+            "deliveryTime": { "type": "number", "description": "Delivery time in minutes" }
+          },
+          "required": ["deliveredAt", "driverId"]
+        }
+      }
+    }
+  }
+}

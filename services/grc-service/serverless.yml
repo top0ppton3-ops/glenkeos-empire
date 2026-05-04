@@ -1,0 +1,86 @@
+service: glenkeos-grc-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  environment:
+    STAGE: ${self:provider.stage}
+    DB_HOST: ${ssm:/glenkeos/${self:provider.stage}/db/host}
+    DB_NAME: ${ssm:/glenkeos/${self:provider.stage}/db/name}
+    DB_USER: ${ssm:/glenkeos/${self:provider.stage}/db/user}
+    DB_PASSWORD: ${ssm:/glenkeos/${self:provider.stage}/db/password~true}
+    EVENT_BUS_NAME: ${ssm:/glenkeos/${self:provider.stage}/eventbridge/bus-name}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource: '*'
+
+functions:
+  createPolicy:
+    handler: src/handlers/createPolicy.handler
+    events:
+      - http:
+          path: /policies
+          method: post
+          cors: true
+
+  getPolicies:
+    handler: src/handlers/getPolicies.handler
+    events:
+      - http:
+          path: /policies
+          method: get
+          cors: true
+
+  getPolicy:
+    handler: src/handlers/getPolicy.handler
+    events:
+      - http:
+          path: /policies/{policyId}
+          method: get
+          cors: true
+
+  approvePolicy:
+    handler: src/handlers/approvePolicy.handler
+    events:
+      - http:
+          path: /policies/{policyId}/approve
+          method: post
+          cors: true
+
+  createRisk:
+    handler: src/handlers/createRisk.handler
+    events:
+      - http:
+          path: /risks
+          method: post
+          cors: true
+
+  getRisks:
+    handler: src/handlers/getRisks.handler
+    events:
+      - http:
+          path: /risks
+          method: get
+          cors: true
+
+  updateRiskStatus:
+    handler: src/handlers/updateRiskStatus.handler
+    events:
+      - http:
+          path: /risks/{riskId}/status
+          method: post
+          cors: true
+
+plugins:
+  - serverless-offline
+
+package:
+  individually: true

@@ -1,0 +1,253 @@
+{
+  "envelope": {
+    "id": {
+      "type": "uuid",
+      "required": true,
+      "description": "Unique event identifier"
+    },
+    "type": {
+      "type": "string",
+      "required": true,
+      "description": "Event type name"
+    },
+    "entityType": {
+      "type": "string",
+      "required": true,
+      "description": "Type of entity this event is about"
+    },
+    "entityId": {
+      "type": "string",
+      "required": true,
+      "description": "ID of the entity this event is about"
+    },
+    "timestamp": {
+      "type": "ISO-8601",
+      "required": true,
+      "description": "Event creation timestamp"
+    },
+    "actorId": {
+      "type": "string",
+      "required": false,
+      "description": "ID of the actor who triggered this event"
+    },
+    "actorType": {
+      "type": "enum",
+      "values": ["STAFF", "SYSTEM", "API", "CUSTOMER"],
+      "required": true,
+      "description": "Type of actor who triggered this event"
+    },
+    "metadata": {
+      "type": "object",
+      "required": true,
+      "description": "Additional event metadata"
+    },
+    "version": {
+      "type": "string",
+      "required": true,
+      "description": "Event schema version"
+    },
+    "correlationId": {
+      "type": "uuid",
+      "required": false,
+      "description": "Correlation ID for distributed tracing"
+    },
+    "tenantId": {
+      "type": "string",
+      "required": false,
+      "description": "Tenant ID for multi-tenant isolation"
+    },
+    "regionId": {
+      "type": "string",
+      "required": true,
+      "description": "Region ID where event was generated"
+    }
+  },
+  "catalog": [
+    {
+      "name": "STORE_CREATED",
+      "producer": "stores",
+      "consumers": [],
+      "description": "New store created in the system"
+    },
+    {
+      "name": "STORE_UPDATED",
+      "producer": "stores",
+      "consumers": [],
+      "description": "Store configuration updated"
+    },
+    {
+      "name": "ORDER_CREATED",
+      "producer": "orders",
+      "consumers": ["inventory", "compliance", "metrics"],
+      "description": "New order placed"
+    },
+    {
+      "name": "ORDER_STATUS_CHANGED",
+      "producer": "orders",
+      "consumers": ["compliance", "metrics"],
+      "description": "Order status transitioned"
+    },
+    {
+      "name": "ORDER_ASSIGNED",
+      "producer": "orders",
+      "consumers": ["drivers", "compliance"],
+      "description": "Order assigned to driver"
+    },
+    {
+      "name": "ORDER_CANCELLED",
+      "producer": "orders",
+      "consumers": ["inventory", "compliance", "metrics"],
+      "description": "Order cancelled"
+    },
+    {
+      "name": "ORDER_DELIVERED",
+      "producer": "orders",
+      "consumers": ["metrics", "compliance"],
+      "description": "Order delivered to customer"
+    },
+    {
+      "name": "INVENTORY_UPDATED",
+      "producer": "inventory",
+      "consumers": ["orders", "metrics"],
+      "description": "Inventory quantity updated"
+    },
+    {
+      "name": "INVENTORY_LOW_STOCK",
+      "producer": "inventory",
+      "consumers": ["stores", "compliance"],
+      "description": "Inventory below reorder point"
+    },
+    {
+      "name": "INVENTORY_REORDER_TRIGGERED",
+      "producer": "inventory",
+      "consumers": ["stores", "metrics"],
+      "description": "Automatic reorder triggered"
+    },
+    {
+      "name": "INVENTORY_RECEIVED",
+      "producer": "inventory",
+      "consumers": ["metrics"],
+      "description": "Inventory shipment received"
+    },
+    {
+      "name": "DRIVER_ASSIGNED",
+      "producer": "drivers",
+      "consumers": ["orders", "compliance"],
+      "description": "Driver assigned to order"
+    },
+    {
+      "name": "DRIVER_STATUS_CHANGED",
+      "producer": "drivers",
+      "consumers": ["metrics"],
+      "description": "Driver status changed"
+    },
+    {
+      "name": "DRIVER_LOCATION_UPDATED",
+      "producer": "drivers",
+      "consumers": ["metrics"],
+      "description": "Driver location updated"
+    },
+    {
+      "name": "DRIVER_RATING_UPDATED",
+      "producer": "drivers",
+      "consumers": ["metrics"],
+      "description": "Driver rating updated"
+    },
+    {
+      "name": "STAFF_CREATED",
+      "producer": "staff",
+      "consumers": ["compliance"],
+      "description": "New staff member created"
+    },
+    {
+      "name": "STAFF_ROLE_CHANGED",
+      "producer": "staff",
+      "consumers": ["policies", "risk", "compliance"],
+      "description": "Staff role changed"
+    },
+    {
+      "name": "STAFF_SESSION_STARTED",
+      "producer": "staff",
+      "consumers": ["compliance"],
+      "description": "Staff session started"
+    },
+    {
+      "name": "STAFF_SESSION_ENDED",
+      "producer": "staff",
+      "consumers": ["compliance"],
+      "description": "Staff session ended"
+    },
+    {
+      "name": "STAFF_DELETED",
+      "producer": "staff",
+      "consumers": ["compliance"],
+      "description": "Staff member deleted"
+    },
+    {
+      "name": "POLICY_CREATED",
+      "producer": "policies",
+      "consumers": ["staff", "compliance"],
+      "description": "New policy created"
+    },
+    {
+      "name": "POLICY_UPDATED",
+      "producer": "policies",
+      "consumers": ["staff", "compliance"],
+      "description": "Policy updated"
+    },
+    {
+      "name": "POLICY_ACKNOWLEDGED",
+      "producer": "policies",
+      "consumers": ["compliance"],
+      "description": "Policy acknowledged by staff"
+    },
+    {
+      "name": "RISK_EVENT_CREATED",
+      "producer": "risk",
+      "consumers": ["compliance", "metrics"],
+      "description": "Risk event identified"
+    },
+    {
+      "name": "RISK_EVENT_ESCALATED",
+      "producer": "risk",
+      "consumers": ["compliance"],
+      "description": "Risk event escalated"
+    },
+    {
+      "name": "RISK_EVENT_MITIGATED",
+      "producer": "risk",
+      "consumers": ["compliance"],
+      "description": "Risk event mitigated"
+    },
+    {
+      "name": "RISK_EVENT_CLOSED",
+      "producer": "risk",
+      "consumers": ["compliance"],
+      "description": "Risk event closed"
+    },
+    {
+      "name": "COMPLIANCE_VIOLATION_DETECTED",
+      "producer": "compliance",
+      "consumers": ["risk", "metrics"],
+      "description": "Compliance violation detected"
+    },
+    {
+      "name": "COMPLIANCE_REPORT_GENERATED",
+      "producer": "compliance",
+      "consumers": [],
+      "description": "Compliance report generated"
+    },
+    {
+      "name": "DATA_EXPORT_REQUESTED",
+      "producer": "compliance",
+      "consumers": ["risk"],
+      "description": "Data export requested"
+    },
+    {
+      "name": "ACCESS_DENIED",
+      "producer": "compliance",
+      "consumers": ["risk"],
+      "description": "Access denied to resource"
+    }
+  ]
+}

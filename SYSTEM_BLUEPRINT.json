@@ -1,0 +1,32 @@
+{
+  "org": {
+    "llc": "GlenKeos LLC",
+    "platforms": ["COC", "CHIC", "GHETTO_EATS"]
+  },
+  "apps": ["coc-portal", "chic-web", "ghetto-web"],
+  "services": [
+    "stores-service",
+    "customers-service",
+    "inventory-service",
+    "orders-service",
+    "payments-service",
+    "drivers-service",
+    "staff-service",
+    "metrics-service",
+    "compliance-service",
+    "notifications-service",
+    "grc-service"
+  ],
+  "infra": {
+    "cloudformation": "/cloudformation/00-COMPLETE-INFRASTRUCTURE.yaml",
+    "db_schema": "/database/COMPLETE_SCHEMA.sql",
+    "events": "/events/COMPLETE_EVENT_CATALOG.json",
+    "openapi": "/openapi/GLENKEOS_COMPLETE_API_V1.yaml"
+  },
+  "docs": {
+    "master_index": "/MASTER_INDEX.md",
+    "deployment": "/DEPLOYMENT_COMPLETE.md",
+    "status": "/SYSTEM_STATUS.md",
+    "execution": "/EXECUTION_ORDER.md"
+  }
+}

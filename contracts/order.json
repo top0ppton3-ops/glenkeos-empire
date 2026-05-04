@@ -1,0 +1,184 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Order",
+  "description": "Customer order in GlenKeos system",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^ord_[a-zA-Z0-9]+$",
+      "description": "Unique order identifier"
+    },
+    "type": {
+      "type": "string",
+      "const": "order"
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "storeId": {
+          "type": "string",
+          "pattern": "^store_[a-zA-Z0-9]+$"
+        },
+        "customerId": {
+          "type": "string",
+          "pattern": "^cust_[a-zA-Z0-9]+$"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PLACED",
+            "CONFIRMED",
+            "IN_PREP",
+            "READY",
+            "ASSIGNED",
+            "PICKED_UP",
+            "OUT_FOR_DELIVERY",
+            "DELIVERED",
+            "CANCELLED",
+            "FAILED"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "sku": { "type": "string" },
+              "name": { "type": "string" },
+              "quantity": { "type": "integer", "minimum": 1 },
+              "unitPrice": { "type": "number", "minimum": 0 },
+              "subtotal": { "type": "number", "minimum": 0 },
+              "modifiers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string" },
+                    "price": { "type": "number" }
+                  }
+                }
+              }
+            },
+            "required": ["id", "sku", "name", "quantity", "unitPrice", "subtotal"]
+          }
+        },
+        "pricing": {
+          "type": "object",
+          "properties": {
+            "subtotal": { "type": "number", "minimum": 0 },
+            "tax": { "type": "number", "minimum": 0 },
+            "deliveryFee": { "type": "number", "minimum": 0 },
+            "tip": { "type": "number", "minimum": 0 },
+            "discount": { "type": "number", "minimum": 0 },
+            "total": { "type": "number", "minimum": 0 }
+          },
+          "required": ["subtotal", "tax", "deliveryFee", "total"]
+        },
+        "delivery": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "type": "object",
+              "properties": {
+                "street": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "zip": { "type": "string" },
+                "country": { "type": "string" },
+                "instructions": { "type": "string" }
+              },
+              "required": ["street", "city", "state", "zip", "country"]
+            },
+            "driverId": {
+              "type": ["string", "null"],
+              "pattern": "^drv_[a-zA-Z0-9]+$"
+            },
+            "estimatedDeliveryTime": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "actualDeliveryTime": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            }
+          },
+          "required": ["address"]
+        },
+        "customer": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "phone": { "type": "string" },
+            "email": { "type": "string", "format": "email" }
+          },
+          "required": ["name", "phone"]
+        },
+        "risk": {
+          "type": "object",
+          "properties": {
+            "score": { "type": "number", "minimum": 0, "maximum": 100 },
+            "level": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+            "flags": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "compliance": {
+          "type": "object",
+          "properties": {
+            "verifiedAt": { "type": "string", "format": "date-time" },
+            "verifiedBy": { "type": "string" },
+            "notes": { "type": "string" }
+          }
+        },
+        "timestamps": {
+          "type": "object",
+          "properties": {
+            "placedAt": { "type": "string", "format": "date-time" },
+            "confirmedAt": { "type": ["string", "null"], "format": "date-time" },
+            "readyAt": { "type": ["string", "null"], "format": "date-time" },
+            "pickedUpAt": { "type": ["string", "null"], "format": "date-time" },
+            "deliveredAt": { "type": ["string", "null"], "format": "date-time" },
+            "cancelledAt": { "type": ["string", "null"], "format": "date-time" }
+          },
+          "required": ["placedAt"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "storeId",
+        "customerId",
+        "status",
+        "items",
+        "pricing",
+        "delivery",
+        "customer",
+        "timestamps",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "store": { "type": "string", "pattern": "^store_[a-zA-Z0-9]+$" },
+        "driver": { "type": ["string", "null"], "pattern": "^drv_[a-zA-Z0-9]+$" },
+        "customer": { "type": "string", "pattern": "^cust_[a-zA-Z0-9]+$" }
+      }
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "required": ["id", "type", "attributes"]
+}

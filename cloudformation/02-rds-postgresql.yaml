@@ -1,0 +1,191 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'GlenKeos RDS PostgreSQL - Multi-AZ, Encrypted, with RLS'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - staging
+      - production
+    Description: Environment name
+
+  DBInstanceClass:
+    Type: String
+    Default: db.t3.medium
+    AllowedValues:
+      - db.t3.medium
+      - db.t3.large
+      - db.r5.large
+    Description: RDS instance class
+
+  DBAllocatedStorage:
+    Type: Number
+    Default: 100
+    MinValue: 100
+    MaxValue: 1000
+    Description: Allocated storage in GB
+
+  MultiAZ:
+    Type: String
+    Default: 'false'
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Description: Enable Multi-AZ
+
+  MasterUsername:
+    Type: String
+    Default: glenkeos_admin
+    Description: Master username
+
+  MasterPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 16
+    Description: Master password (16+ characters)
+
+Resources:
+  # DB Subnet Group
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for GlenKeos RDS
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${Environment}-PrivateSubnet1
+        - Fn::ImportValue: !Sub ${Environment}-PrivateSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-db-subnet-group
+
+  # DB Parameter Group (PostgreSQL 15 with RLS)
+  DBParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description: Parameter group for GlenKeos PostgreSQL
+      Family: postgres15
+      Parameters:
+        rds.logical_replication: '1'
+        wal_level: logical
+        row_security: 'on'
+        shared_buffers: '{DBInstanceClassMemory/4096}'
+        max_connections: '200'
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}-pg
+
+  # RDS PostgreSQL Instance
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    Properties:
+      DBInstanceIdentifier: !Sub glenkeos-${Environment}
+      Engine: postgres
+      EngineVersion: '15.8'
+      DBInstanceClass: !Ref DBInstanceClass
+      AllocatedStorage: !Ref DBAllocatedStorage
+      StorageType: gp3
+      StorageEncrypted: true
+      DBName: glenkeos
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: !Ref MasterPassword
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      VPCSecurityGroups:
+        - Fn::ImportValue: !Sub ${Environment}-RDSSG
+      PubliclyAccessible: false
+      Port: 5432
+      MultiAZ: !Ref MultiAZ
+      BackupRetentionPeriod: 7
+      PreferredBackupWindow: '03:00-04:00'
+      PreferredMaintenanceWindow: 'mon:04:00-mon:05:00'
+      EnableCloudwatchLogsExports:
+        - postgresql
+        - upgrade
+      EnablePerformanceInsights: true
+      PerformanceInsightsRetentionPeriod: 7
+      DBParameterGroupName: !Ref DBParameterGroup
+      DeletionProtection: false
+      AutoMinorVersionUpgrade: true
+      CopyTagsToSnapshot: true
+      Tags:
+        - Key: Name
+          Value: !Sub glenkeos-${Environment}
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Schema
+          Value: master-spec-v1
+
+  # Secrets Manager Secret
+  DBSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub glenkeos/${Environment}/database/master-password
+      Description: GlenKeos PostgreSQL master password
+      SecretString: !Sub |
+        {
+          "username": "${MasterUsername}",
+          "password": "${MasterPassword}",
+          "engine": "postgres",
+          "host": "${DBInstance.Endpoint.Address}",
+          "port": ${DBInstance.Endpoint.Port},
+          "dbname": "glenkeos"
+        }
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  # CloudWatch Alarms
+  DBCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub glenkeos-${Environment}-db-cpu
+      AlarmDescription: Database CPU utilization is too high
+      MetricName: CPUUtilization
+      Namespace: AWS/RDS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !Ref DBInstance
+
+  DBStorageAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub glenkeos-${Environment}-db-storage
+      AlarmDescription: Database free storage space is low
+      MetricName: FreeStorageSpace
+      Namespace: AWS/RDS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 10737418240  # 10 GB
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+        - Name: DBInstanceIdentifier
+          Value: !Ref DBInstance
+
+Outputs:
+  DBEndpoint:
+    Description: PostgreSQL instance endpoint
+    Value: !GetAtt DBInstance.Endpoint.Address
+    Export:
+      Name: !Sub ${Environment}-DBEndpoint
+
+  DBPort:
+    Description: PostgreSQL instance port
+    Value: !GetAtt DBInstance.Endpoint.Port
+    Export:
+      Name: !Sub ${Environment}-DBPort
+
+  DBName:
+    Description: Database name
+    Value: glenkeos
+
+  DBSecretArn:
+    Description: ARN of the secret containing database credentials
+    Value: !Ref DBSecret
+    Export:
+      Name: !Sub ${Environment}-DBSecretArn

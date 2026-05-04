@@ -1,0 +1,26 @@
+{
+  "name": "inventory-service",
+  "version": "1.0.0",
+  "description": "GlenKeos Inventory Service - Inventory and menu management",
+  "main": "src/handlers/inventory.ts",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "deploy:staging": "serverless deploy --stage staging",
+    "deploy:prod": "serverless deploy --stage production"
+  },
+  "dependencies": {
+    "@aws-sdk/client-eventbridge": "^3.540.0",
+    "aws-lambda": "^1.0.7",
+    "pg": "^8.11.3",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.133",
+    "@types/node": "^20.11.5",
+    "@types/pg": "^8.10.9",
+    "@types/uuid": "^9.0.7",
+    "serverless": "^3.38.0",
+    "serverless-esbuild": "^1.52.1",
+    "typescript": "^5.3.3"
+  }
+}

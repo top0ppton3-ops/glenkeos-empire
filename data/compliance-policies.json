@@ -1,0 +1,276 @@
+{
+  "compliance_certifications": [
+    {
+      "certification_id": "SOC2_TYPE2_2026",
+      "type": "SOC2_TYPE2",
+      "status": "IN_REVIEW",
+      "auditor": "Deloitte & Touche LLP",
+      "start_date": "2026-01-15",
+      "expected_completion": "2026-06-30",
+      "scope": [
+        "Security",
+        "Availability",
+        "Processing Integrity",
+        "Confidentiality",
+        "Privacy"
+      ],
+      "controls_implemented": 147,
+      "controls_total": 147,
+      "compliance_score": 98,
+      "findings": {
+        "critical": 0,
+        "high": 0,
+        "medium": 2,
+        "low": 5
+      },
+      "remediation_plan": {
+        "medium_priority": [
+          {
+            "finding": "Password rotation policy not enforced for all staff",
+            "action": "Implement automated password rotation via Okta",
+            "deadline": "2026-05-01",
+            "owner": "IT Security Team"
+          },
+          {
+            "finding": "Incomplete logging for payment transactions",
+            "action": "Enable comprehensive PayPal webhook logging",
+            "deadline": "2026-04-15",
+            "owner": "Engineering Team"
+          }
+        ],
+        "low_priority": [
+          {
+            "finding": "Documentation gaps in DR procedures",
+            "action": "Complete disaster recovery runbooks",
+            "deadline": "2026-06-01",
+            "owner": "DevOps Team"
+          }
+        ]
+      }
+    },
+    {
+      "certification_id": "PCI_DSS_V4_2026",
+      "type": "PCI_DSS",
+      "version": "4.0",
+      "status": "COMPLIANT",
+      "auditor": "ControlCase",
+      "certification_date": "2026-02-01",
+      "expiry_date": "2027-02-01",
+      "scope": [
+        "Card data processing",
+        "Payment gateway integration",
+        "Tokenization",
+        "Network security"
+      ],
+      "controls_total": 329,
+      "controls_passed": 329,
+      "compliance_score": 100,
+      "attestation_url": "https://compliance.glenkeos.com/pci-dss-aoc-2026.pdf",
+      "quarterly_scans": {
+        "q1_2026": {"date": "2026-03-15", "passed": true},
+        "next_scan": "2026-06-15"
+      }
+    },
+    {
+      "certification_id": "GDPR_2026",
+      "type": "GDPR",
+      "status": "COMPLIANT",
+      "dpo_name": "Jennifer Williams",
+      "dpo_email": "dpo@glenkeos.com",
+      "last_audit_date": "2026-01-10",
+      "next_audit_date": "2027-01-10",
+      "scope": [
+        "Customer data processing",
+        "Right to erasure",
+        "Data portability",
+        "Consent management",
+        "Cross-border transfers"
+      ],
+      "compliance_score": 96,
+      "data_protection_measures": [
+        "Encryption at rest (AES-256)",
+        "Encryption in transit (TLS 1.3)",
+        "Pseudonymization of PII",
+        "Regular security assessments",
+        "Data minimization practices",
+        "Automated retention policies"
+      ]
+    },
+    {
+      "certification_id": "ISO27001_2026",
+      "type": "ISO_27001",
+      "status": "PENDING",
+      "auditor": "BSI Group",
+      "start_date": "2026-03-01",
+      "expected_completion": "2026-09-30",
+      "scope": "Information Security Management System (ISMS)",
+      "controls_implemented": 89,
+      "controls_total": 114,
+      "compliance_score": 78,
+      "next_milestone": {
+        "phase": "Stage 1 Audit",
+        "date": "2026-07-15"
+      }
+    },
+    {
+      "certification_id": "HIPAA_2026",
+      "type": "HIPAA",
+      "status": "NOT_APPLICABLE",
+      "reason": "No protected health information (PHI) processed",
+      "reviewed_date": "2026-01-05"
+    }
+  ],
+  "food_safety_policies": {
+    "certification": "ServSafe",
+    "all_managers_certified": true,
+    "last_inspection": {
+      "date": "2026-03-15",
+      "inspector": "Los Angeles County Health Department",
+      "score": 98,
+      "grade": "A",
+      "violations": []
+    },
+    "allergen_policy": {
+      "cross_contamination_prevention": true,
+      "staff_training_required": true,
+      "labeling_standards": "FDA compliant",
+      "customer_disclosure": "Full allergen information provided for all menu items"
+    },
+    "temperature_monitoring": {
+      "cold_storage": "36-40°F monitored every 4 hours",
+      "hot_holding": "Above 140°F monitored every 2 hours",
+      "cooking_temps": "Per FDA food code",
+      "digital_logs": true
+    },
+    "hygiene_standards": {
+      "handwashing_frequency": "Every 30 minutes minimum",
+      "glove_changes": "Between tasks and customers",
+      "hair_restraints": "Required for all kitchen staff",
+      "illness_policy": "Staff must report illness, 24hr exclusion for symptoms"
+    }
+  },
+  "data_privacy_policies": {
+    "privacy_policy_url": "https://glenkeos.com/privacy",
+    "cookie_policy_url": "https://glenkeos.com/cookies",
+    "terms_of_service_url": "https://glenkeos.com/terms",
+    "data_retention": {
+      "customer_data": "7 years after last activity",
+      "order_history": "7 years for tax compliance",
+      "payment_data": "Tokenized, no raw card data stored",
+      "analytics_data": "26 months",
+      "logs": "90 days operational, 1 year security"
+    },
+    "user_rights": {
+      "access": "Users can export all their data",
+      "deletion": "Account deletion within 30 days",
+      "portability": "JSON export available",
+      "opt_out": "Marketing opt-out honored immediately",
+      "correction": "Users can update personal info anytime"
+    },
+    "third_party_sharing": {
+      "payment_processors": ["PayPal", "Stripe"],
+      "analytics": ["Google Analytics (anonymized)"],
+      "email": ["SendGrid"],
+      "sms": ["Twilio"],
+      "no_selling": "We never sell customer data"
+    }
+  },
+  "regulatory_compliance": {
+    "california_cpra": {
+      "status": "COMPLIANT",
+      "do_not_sell_link": "https://glenkeos.com/ccpa",
+      "consumer_rights_honored": true,
+      "last_review": "2026-01-01"
+    },
+    "ada_wcag": {
+      "status": "COMPLIANT",
+      "wcag_level": "AA",
+      "last_audit": "2026-02-01",
+      "accessibility_statement": "https://glenkeos.com/accessibility"
+    },
+    "labor_laws": {
+      "minimum_wage": "Compliant with CA minimum wage $16/hr",
+      "overtime": "1.5x for >8hrs/day, 2x for >12hrs/day",
+      "meal_breaks": "30min unpaid for 5+ hour shifts",
+      "rest_breaks": "10min paid per 4 hours",
+      "workers_comp": "Coverage via State Compensation Insurance Fund"
+    },
+    "business_licenses": {
+      "los_angeles": {
+        "license_number": "LA-BUS-2024-12345",
+        "expiry": "2027-01-31",
+        "status": "ACTIVE"
+      },
+      "california_sellers_permit": {
+        "permit_number": "CA-SELL-987654321",
+        "status": "ACTIVE"
+      },
+      "food_service_permits": [
+        {"store": "COC001", "permit": "LA-FOOD-2024-001", "expiry": "2026-12-31"},
+        {"store": "COC002", "permit": "BH-FOOD-2024-002", "expiry": "2026-12-31"},
+        {"store": "GE001", "permit": "LA-FOOD-2024-003", "expiry": "2026-12-31"}
+      ]
+    }
+  },
+  "security_policies": {
+    "incident_response": {
+      "plan_url": "https://internal.glenkeos.com/security/incident-response",
+      "contact_email": "security@glenkeos.com",
+      "contact_phone": "+1 (310) 788-5599",
+      "escalation_path": [
+        "Security Team → CISO → CTO → CEO → Board",
+        "Breach notification within 72 hours"
+      ]
+    },
+    "access_control": {
+      "mfa_required": true,
+      "password_policy": {
+        "minimum_length": 12,
+        "complexity": "uppercase, lowercase, number, symbol",
+        "rotation_days": 90,
+        "history": 10
+      },
+      "session_timeout": 30,
+      "ip_whitelisting": "For admin/corporate access"
+    },
+    "data_encryption": {
+      "at_rest": "AES-256",
+      "in_transit": "TLS 1.3",
+      "database": "Transparent Data Encryption (TDE)",
+      "backups": "Encrypted with separate keys"
+    },
+    "vulnerability_management": {
+      "penetration_testing": "Annual by third-party",
+      "last_pentest": "2025-11-15",
+      "next_pentest": "2026-11-15",
+      "bug_bounty": "https://hackerone.com/glenkeos",
+      "patch_management": "Critical patches within 24hrs"
+    }
+  },
+  "insurance": {
+    "general_liability": {
+      "provider": "Zurich Insurance",
+      "policy_number": "GL-2026-GK-001",
+      "coverage": 2000000,
+      "expiry": "2027-01-31"
+    },
+    "cyber_liability": {
+      "provider": "AIG",
+      "policy_number": "CYB-2026-GK-001",
+      "coverage": 5000000,
+      "expiry": "2027-01-31"
+    },
+    "workers_compensation": {
+      "provider": "State Compensation Insurance Fund",
+      "policy_number": "WC-2026-CA-12345",
+      "coverage": "Statutory",
+      "expiry": "2027-01-31"
+    },
+    "product_liability": {
+      "provider": "Chubb",
+      "policy_number": "PL-2026-GK-001",
+      "coverage": 3000000,
+      "expiry": "2027-01-31"
+    }
+  }
+}

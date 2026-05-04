@@ -1,0 +1,23 @@
+{
+  "name": "glenkeos-drivers-service",
+  "version": "1.0.0",
+  "description": "Driver management and delivery assignments",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "deploy:prod": "serverless deploy --stage prod",
+    "remove": "serverless remove",
+    "logs": "serverless logs -f",
+    "test": "jest"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "@aws-sdk/client-eventbridge": "^3.490.0",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "serverless": "^3.38.0",
+    "serverless-offline": "^13.3.0",
+    "jest": "^29.7.0"
+  }
+}

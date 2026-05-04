@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Staff",
+  "description": "Staff member with role-based access",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^staff_[a-zA-Z0-9]+$",
+      "description": "Unique staff identifier"
+    },
+    "type": {
+      "type": "string",
+      "const": "staff"
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "pattern": "^\\+?[1-9]\\d{1,14}$"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "SUPER_ADMIN",
+              "COMPLIANCE_OFFICER",
+              "RISK_MANAGER",
+              "STORE_MANAGER",
+              "ASSISTANT_MANAGER",
+              "KITCHEN_MANAGER",
+              "KITCHEN_STAFF",
+              "CASHIER",
+              "DISPATCHER",
+              "DRIVER_COORDINATOR",
+              "CUSTOMER_SERVICE",
+              "INVENTORY_MANAGER",
+              "VIEWER"
+            ]
+          },
+          "minItems": 1
+        },
+        "storeIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^store_[a-zA-Z0-9]+$"
+          },
+          "description": "Stores this staff member has access to"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["ACTIVE", "INACTIVE", "SUSPENDED"]
+        },
+        "lastLogin": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "name",
+        "email",
+        "roles",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "stores": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^store_[a-zA-Z0-9]+$" }
+        }
+      }
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "required": ["id", "type", "attributes"]
+}

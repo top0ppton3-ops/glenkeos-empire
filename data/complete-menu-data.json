@@ -1,0 +1,311 @@
+{
+  "menu_items": [
+    {
+      "item_id": "COC_ITEM001",
+      "brand_id": "COC",
+      "sku": "COC-APP-001",
+      "item_name": "Truffle Mac & Cheese",
+      "description": "Aged cheddar and gruyère mac & cheese with shaved black truffles and herb breadcrumbs",
+      "category": "Appetizers",
+      "base_price": 18.99,
+      "image_url": "/images/menu/coc-truffle-mac.jpg",
+      "nutritional_info": {
+        "calories": 680,
+        "protein_g": 28,
+        "carbs_g": 52,
+        "fat_g": 42,
+        "sodium_mg": 890
+      },
+      "allergens": ["dairy", "gluten", "eggs"],
+      "available": true,
+      "featured": true,
+      "prep_time_minutes": 15,
+      "portion_size": "12 oz",
+      "spice_level": 0
+    },
+    {
+      "item_id": "COC_ITEM002",
+      "brand_id": "COC",
+      "sku": "COC-ENT-001",
+      "item_name": "Wagyu Burger",
+      "description": "Premium A5 wagyu beef patty, aged white cheddar, caramelized onions, truffle aioli on brioche",
+      "category": "Entrees",
+      "base_price": 32.99,
+      "image_url": "/images/menu/coc-wagyu-burger.jpg",
+      "nutritional_info": {
+        "calories": 920,
+        "protein_g": 48,
+        "carbs_g": 42,
+        "fat_g": 58,
+        "sodium_mg": 1240
+      },
+      "allergens": ["dairy", "gluten", "eggs", "soy"],
+      "available": true,
+      "featured": true,
+      "prep_time_minutes": 20,
+      "portion_size": "8 oz patty",
+      "customization_options": [
+        {"name": "Temperature", "values": ["Medium Rare", "Medium", "Medium Well", "Well Done"]},
+        {"name": "Add Extras", "values": ["Bacon +$3", "Avocado +$2", "Fried Egg +$2"]}
+      ]
+    },
+    {
+      "item_id": "COC_ITEM003",
+      "brand_id": "COC",
+      "sku": "COC-ENT-002",
+      "item_name": "Maine Lobster Roll",
+      "description": "Fresh Maine lobster tossed in lemon herb butter, served on a butter-toasted New England roll",
+      "category": "Entrees",
+      "base_price": 28.99,
+      "image_url": "/images/menu/coc-lobster-roll.jpg",
+      "nutritional_info": {
+        "calories": 540,
+        "protein_g": 36,
+        "carbs_g": 38,
+        "fat_g": 24,
+        "sodium_mg": 980
+      },
+      "allergens": ["shellfish", "dairy", "gluten"],
+      "available": true,
+      "featured": false,
+      "prep_time_minutes": 12,
+      "portion_size": "6 oz lobster meat"
+    },
+    {
+      "item_id": "COC_ITEM004",
+      "brand_id": "COC",
+      "sku": "COC-SAL-001",
+      "item_name": "Kale Caesar",
+      "description": "Organic kale, shaved parmesan, house-made croutons, classic caesar dressing",
+      "category": "Salads",
+      "base_price": 14.99,
+      "image_url": "/images/menu/coc-kale-caesar.jpg",
+      "nutritional_info": {
+        "calories": 420,
+        "protein_g": 18,
+        "carbs_g": 28,
+        "fat_g": 28,
+        "sodium_mg": 720
+      },
+      "allergens": ["dairy", "eggs", "gluten", "fish"],
+      "available": true,
+      "featured": false,
+      "prep_time_minutes": 8,
+      "customization_options": [
+        {"name": "Add Protein", "values": ["Grilled Chicken +$6", "Grilled Salmon +$8", "Shrimp +$9"]}
+      ]
+    },
+    {
+      "item_id": "GE_ITEM001",
+      "brand_id": "GE",
+      "sku": "GE-TAC-001",
+      "item_name": "OG Street Tacos",
+      "description": "Three authentic street-style tacos: carne asada, carnitas, and al pastor with fresh cilantro and onions",
+      "category": "Tacos",
+      "base_price": 9.99,
+      "image_url": "/images/menu/ge-street-tacos.jpg",
+      "nutritional_info": {
+        "calories": 720,
+        "protein_g": 42,
+        "carbs_g": 68,
+        "fat_g": 28,
+        "sodium_mg": 1180
+      },
+      "allergens": ["gluten"],
+      "available": true,
+      "featured": true,
+      "prep_time_minutes": 10,
+      "spice_level": 2,
+      "portion_size": "3 tacos"
+    },
+    {
+      "item_id": "GE_ITEM002",
+      "brand_id": "GE",
+      "sku": "GE-BUR-001",
+      "item_name": "Hood Burrito",
+      "description": "Massive loaded burrito with choice of protein, rice, beans, cheese, sour cream, guac, salsa",
+      "category": "Burritos",
+      "base_price": 12.99,
+      "image_url": "/images/menu/ge-hood-burrito.jpg",
+      "nutritional_info": {
+        "calories": 1420,
+        "protein_g": 58,
+        "carbs_g": 128,
+        "fat_g": 68,
+        "sodium_mg": 2240
+      },
+      "allergens": ["dairy", "gluten"],
+      "available": true,
+      "featured": true,
+      "prep_time_minutes": 12,
+      "spice_level": 2,
+      "portion_size": "1.5 lbs",
+      "customization_options": [
+        {"name": "Protein", "values": ["Carne Asada", "Carnitas", "Pollo Asado", "Al Pastor", "Bean & Cheese"]},
+        {"name": "Heat Level", "values": ["Mild", "Medium", "Hot", "Extra Hot"]},
+        {"name": "Add-ons", "values": ["Extra Guac +$2", "Extra Cheese +$1", "Jalapeños", "Hot Sauce"]}
+      ]
+    },
+    {
+      "item_id": "GE_ITEM003",
+      "brand_id": "GE",
+      "sku": "GE-WIN-001",
+      "item_name": "Fire Wings",
+      "description": "Crispy chicken wings tossed in signature hot sauce with ranch or blue cheese",
+      "category": "Wings",
+      "base_price": 13.99,
+      "image_url": "/images/menu/ge-fire-wings.jpg",
+      "nutritional_info": {
+        "calories": 980,
+        "protein_g": 64,
+        "carbs_g": 12,
+        "fat_g": 76,
+        "sodium_mg": 2180
+      },
+      "allergens": ["dairy"],
+      "available": true,
+      "featured": true,
+      "prep_time_minutes": 18,
+      "spice_level": 4,
+      "portion_size": "10 wings",
+      "customization_options": [
+        {"name": "Sauce", "values": ["Buffalo Hot", "BBQ", "Lemon Pepper", "Honey Garlic", "Ghost Pepper"]},
+        {"name": "Size", "values": ["5pc $7.99", "10pc $13.99", "20pc $25.99", "50pc $59.99"]}
+      ]
+    },
+    {
+      "item_id": "GE_ITEM004",
+      "brand_id": "GE",
+      "sku": "GE-SID-001",
+      "item_name": "Loaded Fries",
+      "description": "Crispy fries loaded with cheese sauce, bacon, jalapeños, sour cream, and green onions",
+      "category": "Sides",
+      "base_price": 8.99,
+      "image_url": "/images/menu/ge-loaded-fries.jpg",
+      "nutritional_info": {
+        "calories": 840,
+        "protein_g": 24,
+        "carbs_g": 82,
+        "fat_g": 48,
+        "sodium_mg": 1680
+      },
+      "allergens": ["dairy", "pork"],
+      "available": true,
+      "featured": false,
+      "prep_time_minutes": 10,
+      "spice_level": 1
+    },
+    {
+      "item_id": "GK_ITEM001",
+      "brand_id": "GK",
+      "sku": "GK-BRK-001",
+      "item_name": "Executive Breakfast",
+      "description": "Premium breakfast service: smoked salmon benedict, fresh fruit, artisan pastries, fresh-squeezed juice",
+      "category": "Breakfast",
+      "base_price": 45.00,
+      "image_url": "/images/menu/gk-exec-breakfast.jpg",
+      "nutritional_info": {
+        "calories": 1240,
+        "protein_g": 48,
+        "carbs_g": 98,
+        "fat_g": 68,
+        "sodium_mg": 1420
+      },
+      "allergens": ["dairy", "eggs", "gluten", "fish"],
+      "available": true,
+      "featured": true,
+      "prep_time_minutes": 25,
+      "minimum_order_hours": 2,
+      "concierge_only": true
+    },
+    {
+      "item_id": "GK_ITEM002",
+      "brand_id": "GK",
+      "sku": "GK-LUN-001",
+      "item_name": "Curated Business Lunch",
+      "description": "Three-course meal: seasonal soup, choice of entrée (filet, salmon, or lobster), dessert",
+      "category": "Lunch",
+      "base_price": 65.00,
+      "image_url": "/images/menu/gk-business-lunch.jpg",
+      "nutritional_info": {
+        "calories": 1680,
+        "protein_g": 72,
+        "carbs_g": 118,
+        "fat_g": 82,
+        "sodium_mg": 1840
+      },
+      "allergens": ["dairy", "eggs", "gluten", "shellfish"],
+      "available": true,
+      "featured": true,
+      "prep_time_minutes": 35,
+      "minimum_order_hours": 4,
+      "concierge_only": true
+    },
+    {
+      "item_id": "GK_ITEM003",
+      "brand_id": "GK",
+      "sku": "GK-DIN-001",
+      "item_name": "Private Chef Dinner",
+      "description": "Five-course tasting menu prepared by private chef, wine pairings available",
+      "category": "Dinner",
+      "base_price": 195.00,
+      "image_url": "/images/menu/gk-chef-dinner.jpg",
+      "nutritional_info": {
+        "calories": 2400,
+        "protein_g": 98,
+        "carbs_g": 168,
+        "fat_g": 128,
+        "sodium_mg": 2240
+      },
+      "allergens": ["dairy", "eggs", "gluten", "shellfish", "tree_nuts"],
+      "available": true,
+      "featured": true,
+      "prep_time_minutes": 60,
+      "minimum_order_hours": 24,
+      "concierge_only": true,
+      "serves": 2
+    },
+    {
+      "item_id": "GK_ITEM004",
+      "brand_id": "GK",
+      "sku": "GK-CAT-001",
+      "item_name": "Corporate Catering",
+      "description": "Full-service catering for 10-100 guests, customizable menu, staff included",
+      "category": "Catering",
+      "base_price": 500.00,
+      "image_url": "/images/menu/gk-catering.jpg",
+      "available": true,
+      "featured": true,
+      "prep_time_minutes": 120,
+      "minimum_order_hours": 72,
+      "concierge_only": true,
+      "minimum_guests": 10,
+      "price_per_person": 50.00
+    }
+  ],
+  "categories": [
+    {"id": "appetizers", "name": "Appetizers", "sort_order": 1},
+    {"id": "salads", "name": "Salads", "sort_order": 2},
+    {"id": "entrees", "name": "Entrées", "sort_order": 3},
+    {"id": "tacos", "name": "Tacos", "sort_order": 4},
+    {"id": "burritos", "name": "Burritos", "sort_order": 5},
+    {"id": "wings", "name": "Wings", "sort_order": 6},
+    {"id": "sides", "name": "Sides", "sort_order": 7},
+    {"id": "breakfast", "name": "Breakfast", "sort_order": 8},
+    {"id": "lunch", "name": "Lunch", "sort_order": 9},
+    {"id": "dinner", "name": "Dinner", "sort_order": 10},
+    {"id": "catering", "name": "Catering", "sort_order": 11}
+  ],
+  "allergen_definitions": {
+    "dairy": "Contains milk or milk products",
+    "eggs": "Contains eggs",
+    "fish": "Contains fish",
+    "shellfish": "Contains shellfish (shrimp, crab, lobster)",
+    "tree_nuts": "Contains tree nuts (almonds, walnuts, etc)",
+    "peanuts": "Contains peanuts",
+    "wheat": "Contains wheat",
+    "gluten": "Contains gluten (wheat, barley, rye)",
+    "soy": "Contains soy or soy products",
+    "pork": "Contains pork products"
+  }
+}

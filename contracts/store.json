@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Store",
+  "description": "Physical store location in GlenKeos ecosystem",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^store_[a-zA-Z0-9]+$",
+      "description": "Unique store identifier"
+    },
+    "type": {
+      "type": "string",
+      "const": "store"
+    },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "street": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "zip": { "type": "string" },
+            "country": { "type": "string" }
+          },
+          "required": ["street", "city", "state", "zip", "country"]
+        },
+        "phone": {
+          "type": "string",
+          "pattern": "^\\+?[1-9]\\d{1,14}$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["ACTIVE", "INACTIVE", "MAINTENANCE"]
+        },
+        "operatingHours": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "open": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" },
+              "close": { "type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$" }
+            }
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["name", "address", "status", "createdAt", "updatedAt"]
+    },
+    "relationships": {
+      "type": "object",
+      "properties": {
+        "inventory": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^inv_[a-zA-Z0-9]+$" }
+        },
+        "staff": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^staff_[a-zA-Z0-9]+$" }
+        },
+        "drivers": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^drv_[a-zA-Z0-9]+$" }
+        }
+      }
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "required": ["id", "type", "attributes"]
+}

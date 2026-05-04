@@ -1,0 +1,238 @@
+{
+  "roles": [
+    {
+      "name": "SUPER_ADMIN",
+      "description": "Full system access",
+      "mfaRequired": true,
+      "sessionDurationHours": 4,
+      "idleTimeoutMinutes": 30,
+      "permissions": {
+        "stores": ["read", "write", "delete"],
+        "orders": ["read", "write", "delete"],
+        "inventory": ["read", "write", "delete"],
+        "drivers": ["read", "write", "delete"],
+        "staff": ["read", "write", "delete"],
+        "policies": ["read", "write", "delete"],
+        "riskEvents": ["read", "write", "delete"],
+        "complianceEvents": ["read"],
+        "metrics": ["read"]
+      }
+    },
+    {
+      "name": "COMPLIANCE_OFFICER",
+      "description": "Audit and compliance management",
+      "mfaRequired": true,
+      "sessionDurationHours": 8,
+      "idleTimeoutMinutes": 60,
+      "permissions": {
+        "stores": ["read"],
+        "orders": ["read"],
+        "inventory": ["read"],
+        "drivers": ["read"],
+        "staff": ["read"],
+        "policies": ["read", "write"],
+        "riskEvents": ["read"],
+        "complianceEvents": ["read", "write"],
+        "metrics": ["read"]
+      }
+    },
+    {
+      "name": "RISK_MANAGER",
+      "description": "Risk event management",
+      "mfaRequired": true,
+      "sessionDurationHours": 8,
+      "idleTimeoutMinutes": 60,
+      "permissions": {
+        "stores": ["read"],
+        "orders": ["read"],
+        "inventory": ["read"],
+        "drivers": ["read"],
+        "staff": ["read"],
+        "policies": ["read"],
+        "riskEvents": ["read", "write"],
+        "complianceEvents": ["read"],
+        "metrics": ["read"]
+      }
+    },
+    {
+      "name": "STORE_MANAGER",
+      "description": "Store operations",
+      "mfaRequired": false,
+      "sessionDurationHours": 8,
+      "idleTimeoutMinutes": 120,
+      "permissions": {
+        "stores": ["read", "write:assigned"],
+        "orders": ["read:assigned", "write:assigned"],
+        "inventory": ["read:assigned", "write:assigned"],
+        "drivers": ["read:assigned", "write:assigned"],
+        "staff": ["read:assigned"],
+        "policies": ["read"],
+        "riskEvents": ["read:assigned"],
+        "complianceEvents": ["read:assigned"],
+        "metrics": ["read:assigned"]
+      }
+    },
+    {
+      "name": "ASSISTANT_MANAGER",
+      "description": "Limited store operations",
+      "mfaRequired": false,
+      "sessionDurationHours": 8,
+      "idleTimeoutMinutes": 120,
+      "permissions": {
+        "stores": ["read:assigned"],
+        "orders": ["read:assigned", "write:assigned"],
+        "inventory": ["read:assigned"],
+        "drivers": ["read:assigned"],
+        "staff": ["read:assigned"],
+        "policies": ["read"],
+        "riskEvents": [],
+        "complianceEvents": [],
+        "metrics": ["read:assigned"]
+      }
+    },
+    {
+      "name": "KITCHEN_MANAGER",
+      "description": "Kitchen oversight",
+      "mfaRequired": false,
+      "sessionDurationHours": 12,
+      "idleTimeoutMinutes": 240,
+      "permissions": {
+        "stores": ["read:assigned"],
+        "orders": ["read:assigned", "write:status"],
+        "inventory": ["read:assigned"],
+        "drivers": [],
+        "staff": ["read:assigned"],
+        "policies": ["read"],
+        "riskEvents": [],
+        "complianceEvents": [],
+        "metrics": ["read:assigned"]
+      }
+    },
+    {
+      "name": "KITCHEN_STAFF",
+      "description": "Order preparation",
+      "mfaRequired": false,
+      "sessionDurationHours": 12,
+      "idleTimeoutMinutes": 240,
+      "permissions": {
+        "stores": [],
+        "orders": ["read:assigned", "write:status"],
+        "inventory": [],
+        "drivers": [],
+        "staff": [],
+        "policies": ["read"],
+        "riskEvents": [],
+        "complianceEvents": [],
+        "metrics": []
+      }
+    },
+    {
+      "name": "CASHIER",
+      "description": "Order entry and payment",
+      "mfaRequired": false,
+      "sessionDurationHours": 12,
+      "idleTimeoutMinutes": 240,
+      "permissions": {
+        "stores": ["read:assigned"],
+        "orders": ["read:assigned", "write:create"],
+        "inventory": ["read:assigned"],
+        "drivers": [],
+        "staff": [],
+        "policies": ["read"],
+        "riskEvents": [],
+        "complianceEvents": [],
+        "metrics": []
+      }
+    },
+    {
+      "name": "DISPATCHER",
+      "description": "Driver assignment",
+      "mfaRequired": false,
+      "sessionDurationHours": 12,
+      "idleTimeoutMinutes": 120,
+      "permissions": {
+        "stores": ["read:assigned"],
+        "orders": ["read:assigned", "write:assign"],
+        "inventory": [],
+        "drivers": ["read:assigned", "write:assign"],
+        "staff": [],
+        "policies": ["read"],
+        "riskEvents": [],
+        "complianceEvents": [],
+        "metrics": ["read:assigned"]
+      }
+    },
+    {
+      "name": "DRIVER_COORDINATOR",
+      "description": "Driver management",
+      "mfaRequired": false,
+      "sessionDurationHours": 8,
+      "idleTimeoutMinutes": 120,
+      "permissions": {
+        "stores": ["read:assigned"],
+        "orders": ["read:assigned"],
+        "inventory": [],
+        "drivers": ["read:assigned", "write:assigned"],
+        "staff": [],
+        "policies": ["read"],
+        "riskEvents": [],
+        "complianceEvents": [],
+        "metrics": ["read:assigned"]
+      }
+    },
+    {
+      "name": "CUSTOMER_SERVICE",
+      "description": "Customer support",
+      "mfaRequired": false,
+      "sessionDurationHours": 12,
+      "idleTimeoutMinutes": 240,
+      "permissions": {
+        "stores": ["read"],
+        "orders": ["read", "write:status", "write:cancel"],
+        "inventory": ["read"],
+        "drivers": ["read"],
+        "staff": [],
+        "policies": ["read"],
+        "riskEvents": [],
+        "complianceEvents": [],
+        "metrics": []
+      }
+    },
+    {
+      "name": "INVENTORY_MANAGER",
+      "description": "Inventory tracking",
+      "mfaRequired": false,
+      "sessionDurationHours": 8,
+      "idleTimeoutMinutes": 120,
+      "permissions": {
+        "stores": ["read:assigned"],
+        "orders": ["read:assigned"],
+        "inventory": ["read:assigned", "write:assigned"],
+        "drivers": [],
+        "staff": [],
+        "policies": ["read"],
+        "riskEvents": [],
+        "complianceEvents": [],
+        "metrics": ["read:assigned"]
+      }
+    },
+    {
+      "name": "VIEWER",
+      "description": "Read-only access",
+      "mfaRequired": false,
+      "sessionDurationHours": 12,
+      "idleTimeoutMinutes": 240,
+      "permissions": {
+        "stores": ["read"],
+        "orders": ["read"],
+        "inventory": ["read"],
+        "drivers": ["read"],
+        "staff": [],
+        "policies": ["read"],
+        "riskEvents": [],
+        "complianceEvents": [],
+        "metrics": ["read"]
+      }
+    }
+  ]
+}

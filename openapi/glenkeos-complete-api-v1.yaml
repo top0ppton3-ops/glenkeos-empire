@@ -1,0 +1,1491 @@
+openapi: 3.0.3
+info:
+  title: GlenKeos Platform API
+  version: 1.0.0
+  description: |
+    Complete API specification for the GlenKeos multi-tenant commerce platform.
+    Includes all 10 microservices, PayPal integration, and event-driven workflows.
+  contact:
+    name: GlenKeos Engineering
+    email: engineering@glenkeos.com
+
+servers:
+  - url: https://api.glenkeos.com/v1
+    description: Production
+  - url: https://staging-api.glenkeos.com/v1
+    description: Staging
+  - url: http://localhost:3000/v1
+    description: Local Development
+
+security:
+  - CognitoAuthorizer: []
+
+components:
+  securitySchemes:
+    CognitoAuthorizer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Common
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    PaginationMeta:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        total:
+          type: integer
+
+    # Stores
+    Store:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        brand_id:
+          type: string
+        name:
+          type: string
+        address:
+          type: object
+        status:
+          type: string
+          enum: [ACTIVE, INACTIVE, MAINTENANCE]
+        capabilities:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # Customers
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        reward_points:
+          type: integer
+        tier:
+          type: string
+          enum: [BRONZE, SILVER, GOLD, PLATINUM]
+        created_at:
+          type: string
+          format: date-time
+
+    # Orders
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        customer_id:
+          type: string
+        store_id:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, ACCEPTED, IN_PREP, READY, OUT_FOR_DELIVERY, COMPLETED, CANCELLED]
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        total_amount:
+          type: number
+        payment_status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: string
+        item_id:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+        customizations:
+          type: object
+
+    # Payments
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        order_id:
+          type: string
+        customer_id:
+          type: string
+        paypal_order_id:
+          type: string
+        paypal_capture_id:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+          default: USD
+        status:
+          type: string
+          enum: [CREATED, AUTHORIZED, COMPLETED, FAILED, REFUNDED]
+        created_at:
+          type: string
+          format: date-time
+
+    # Inventory
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: string
+        store_id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        quantity:
+          type: integer
+        threshold_low:
+          type: integer
+        threshold_critical:
+          type: integer
+        unit:
+          type: string
+        last_updated:
+          type: string
+          format: date-time
+
+    # Drivers
+    Driver:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        vehicle_type:
+          type: string
+        status:
+          type: string
+          enum: [AVAILABLE, ASSIGNED, OFFLINE]
+        current_location:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+
+    # Staff
+    Staff:
+      type: object
+      properties:
+        id:
+          type: string
+        store_id:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [MANAGER, COOK, CASHIER, DRIVER]
+        status:
+          type: string
+          enum: [ACTIVE, ON_SHIFT, OFF_SHIFT, INACTIVE]
+        created_at:
+          type: string
+          format: date-time
+
+    # Metrics
+    Metric:
+      type: object
+      properties:
+        metric_name:
+          type: string
+        value:
+          type: number
+        unit:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        dimensions:
+          type: object
+
+    # Compliance
+    ComplianceEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        event_type:
+          type: string
+        entity_type:
+          type: string
+        entity_id:
+          type: string
+        action:
+          type: string
+        actor_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+
+paths:
+  # ========================================
+  # STORES SERVICE
+  # ========================================
+  /stores:
+    post:
+      summary: Create a new store
+      operationId: createStore
+      tags: [Stores]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [brand_id, name, address]
+              properties:
+                brand_id:
+                  type: string
+                name:
+                  type: string
+                address:
+                  type: object
+                capabilities:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Store created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      summary: List stores
+      operationId: listStores
+      tags: [Stores]
+      parameters:
+        - name: brand_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of stores
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stores:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Store'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /stores/{storeId}:
+    get:
+      summary: Get store by ID
+      operationId: getStore
+      tags: [Stores]
+      parameters:
+        - name: storeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Store details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        '404':
+          description: Store not found
+
+    put:
+      summary: Update store
+      operationId: updateStore
+      tags: [Stores]
+      parameters:
+        - name: storeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                address:
+                  type: object
+                status:
+                  type: string
+                capabilities:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Store updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+
+  # ========================================
+  # CUSTOMERS SERVICE
+  # ========================================
+  /customers:
+    post:
+      summary: Create customer
+      operationId: createCustomer
+      tags: [Customers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, phone, first_name, last_name]
+              properties:
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+    get:
+      summary: List customers
+      operationId: listCustomers
+      tags: [Customers]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: tier
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Customer list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Customer'
+
+  /customers/{customerId}:
+    get:
+      summary: Get customer by ID
+      operationId: getCustomer
+      tags: [Customers]
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Customer details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+  /customers/{customerId}/rewards:
+    post:
+      summary: Add reward points
+      operationId: addRewardPoints
+      tags: [Customers]
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [points, reason]
+              properties:
+                points:
+                  type: integer
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Rewards updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer_id:
+                    type: string
+                  total_points:
+                    type: integer
+
+  # ========================================
+  # ORDERS SERVICE
+  # ========================================
+  /orders:
+    post:
+      summary: Create order
+      operationId: createOrder
+      tags: [Orders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customer_id, store_id, items]
+              properties:
+                customer_id:
+                  type: string
+                store_id:
+                  type: string
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      item_id:
+                        type: string
+                      quantity:
+                        type: integer
+                      customizations:
+                        type: object
+                delivery_address:
+                  type: object
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+    get:
+      summary: List orders
+      operationId: listOrders
+      tags: [Orders]
+      parameters:
+        - name: customer_id
+          in: query
+          schema:
+            type: string
+        - name: store_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+
+  /orders/{orderId}:
+    get:
+      summary: Get order by ID
+      operationId: getOrder
+      tags: [Orders]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  /orders/{orderId}/status:
+    put:
+      summary: Update order status
+      operationId: updateOrderStatus
+      tags: [Orders]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [new_status]
+              properties:
+                new_status:
+                  type: string
+                  enum: [ACCEPTED, IN_PREP, READY, OUT_FOR_DELIVERY, COMPLETED, CANCELLED]
+                reason_code:
+                  type: string
+      responses:
+        '200':
+          description: Order status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  # ========================================
+  # PAYMENTS SERVICE
+  # ========================================
+  /payments/create-order:
+    post:
+      summary: Create PayPal order
+      operationId: createPayPalOrder
+      tags: [Payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, order_id, customer_id]
+              properties:
+                amount:
+                  type: number
+                currency:
+                  type: string
+                  default: USD
+                order_id:
+                  type: string
+                customer_id:
+                  type: string
+                items:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        '201':
+          description: PayPal order created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_id:
+                    type: string
+                  paypal_order_id:
+                    type: string
+                  status:
+                    type: string
+                  links:
+                    type: array
+                    items:
+                      type: object
+
+  /payments/capture-order:
+    post:
+      summary: Capture PayPal order
+      operationId: capturePayPalOrder
+      tags: [Payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [paypal_order_id]
+              properties:
+                paypal_order_id:
+                  type: string
+      responses:
+        '200':
+          description: Payment captured
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment_id:
+                    type: string
+                  status:
+                    type: string
+                  capture:
+                    type: object
+
+  /payments/refund:
+    post:
+      summary: Refund payment
+      operationId: refundPayment
+      tags: [Payments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [capture_id]
+              properties:
+                capture_id:
+                  type: string
+                amount:
+                  type: number
+                currency:
+                  type: string
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Refund issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  refund_id:
+                    type: string
+                  paypal_refund_id:
+                    type: string
+                  status:
+                    type: string
+
+  /payments:
+    get:
+      summary: List payments
+      operationId: listPayments
+      tags: [Payments]
+      parameters:
+        - name: order_id
+          in: query
+          schema:
+            type: string
+        - name: customer_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+
+  /payments/orders/{orderId}:
+    get:
+      summary: Get PayPal order details
+      operationId: getPayPalOrder
+      tags: [Payments]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: PayPal order details
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /payments/webhook:
+    post:
+      summary: PayPal webhook handler
+      operationId: handlePayPalWebhook
+      tags: [Payments]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook processed
+
+  # ========================================
+  # INVENTORY SERVICE
+  # ========================================
+  /inventory/items:
+    post:
+      summary: Create inventory item
+      operationId: createInventoryItem
+      tags: [Inventory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [store_id, name, quantity, unit]
+              properties:
+                store_id:
+                  type: string
+                name:
+                  type: string
+                category:
+                  type: string
+                quantity:
+                  type: integer
+                threshold_low:
+                  type: integer
+                threshold_critical:
+                  type: integer
+                unit:
+                  type: string
+      responses:
+        '201':
+          description: Item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItem'
+
+    get:
+      summary: List inventory items
+      operationId: listInventoryItems
+      tags: [Inventory]
+      parameters:
+        - name: store_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: low_stock
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Inventory items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryItem'
+
+  /inventory/items/{itemId}:
+    put:
+      summary: Update inventory item
+      operationId: updateInventoryItem
+      tags: [Inventory]
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                threshold_low:
+                  type: integer
+                threshold_critical:
+                  type: integer
+      responses:
+        '200':
+          description: Item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItem'
+
+  /inventory/adjust:
+    post:
+      summary: Adjust inventory
+      operationId: adjustInventory
+      tags: [Inventory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [item_id, adjustment, reason]
+              properties:
+                item_id:
+                  type: string
+                adjustment:
+                  type: integer
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Inventory adjusted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItem'
+
+  # ========================================
+  # DRIVERS SERVICE
+  # ========================================
+  /drivers:
+    post:
+      summary: Create driver
+      operationId: createDriver
+      tags: [Drivers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, phone, vehicle_type]
+              properties:
+                name:
+                  type: string
+                phone:
+                  type: string
+                vehicle_type:
+                  type: string
+                license_number:
+                  type: string
+      responses:
+        '201':
+          description: Driver created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+
+    get:
+      summary: List drivers
+      operationId: listDrivers
+      tags: [Drivers]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Driver list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  drivers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Driver'
+
+  /drivers/{driverId}/assign:
+    post:
+      summary: Assign driver to order
+      operationId: assignDriver
+      tags: [Drivers]
+      parameters:
+        - name: driverId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id]
+              properties:
+                order_id:
+                  type: string
+      responses:
+        '200':
+          description: Driver assigned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  assignment_id:
+                    type: string
+                  driver_id:
+                    type: string
+                  order_id:
+                    type: string
+
+  /drivers/{driverId}/location:
+    post:
+      summary: Update driver location
+      operationId: updateDriverLocation
+      tags: [Drivers]
+      parameters:
+        - name: driverId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lat, lng]
+              properties:
+                lat:
+                  type: number
+                lng:
+                  type: number
+      responses:
+        '200':
+          description: Location updated
+
+  # ========================================
+  # STAFF SERVICE
+  # ========================================
+  /staff:
+    post:
+      summary: Create staff member
+      operationId: createStaff
+      tags: [Staff]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [store_id, name, role]
+              properties:
+                store_id:
+                  type: string
+                name:
+                  type: string
+                role:
+                  type: string
+                  enum: [MANAGER, COOK, CASHIER, DRIVER]
+                email:
+                  type: string
+                phone:
+                  type: string
+      responses:
+        '201':
+          description: Staff created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+
+    get:
+      summary: List staff
+      operationId: listStaff
+      tags: [Staff]
+      parameters:
+        - name: store_id
+          in: query
+          schema:
+            type: string
+        - name: role
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Staff list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  staff:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Staff'
+
+  /staff/{staffId}/shift/start:
+    post:
+      summary: Start shift
+      operationId: startShift
+      tags: [Staff]
+      parameters:
+        - name: staffId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Shift started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shift_id:
+                    type: string
+                  staff_id:
+                    type: string
+                  started_at:
+                    type: string
+                    format: date-time
+
+  /staff/{staffId}/shift/end:
+    post:
+      summary: End shift
+      operationId: endShift
+      tags: [Staff]
+      parameters:
+        - name: staffId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                shift_id:
+                  type: string
+      responses:
+        '200':
+          description: Shift ended
+
+  # ========================================
+  # METRICS SERVICE
+  # ========================================
+  /metrics/revenue:
+    get:
+      summary: Get revenue metrics
+      operationId: getRevenueMetrics
+      tags: [Metrics]
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: store_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Revenue metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_revenue:
+                    type: number
+                  order_count:
+                    type: integer
+                  average_order_value:
+                    type: number
+                  breakdown:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Metric'
+
+  /metrics/orders:
+    get:
+      summary: Get order metrics
+      operationId: getOrderMetrics
+      tags: [Metrics]
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: store_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_orders:
+                    type: integer
+                  completed_orders:
+                    type: integer
+                  cancelled_orders:
+                    type: integer
+                  avg_prep_time_minutes:
+                    type: number
+
+  /metrics/operations:
+    get:
+      summary: Get operational metrics
+      operationId: getOperationalMetrics
+      tags: [Metrics]
+      parameters:
+        - name: store_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operational metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  active_orders:
+                    type: integer
+                  staff_on_shift:
+                    type: integer
+                  drivers_available:
+                    type: integer
+                  low_stock_items:
+                    type: integer
+
+  /metrics/compliance:
+    get:
+      summary: Get compliance metrics
+      operationId: getComplianceMetrics
+      tags: [Metrics]
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Compliance metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_events:
+                    type: integer
+                  critical_events:
+                    type: integer
+                  policy_violations:
+                    type: integer
+
+  # ========================================
+  # COMPLIANCE SERVICE
+  # ========================================
+  /compliance/events:
+    get:
+      summary: Get compliance events
+      operationId: getComplianceEvents
+      tags: [Compliance]
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: event_type
+          in: query
+          schema:
+            type: string
+        - name: entity_type
+          in: query
+          schema:
+            type: string
+        - name: entity_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Compliance events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ComplianceEvent'
+
+  /compliance/export:
+    get:
+      summary: Export compliance data
+      operationId: exportComplianceData
+      tags: [Compliance]
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv, pdf]
+            default: json
+      responses:
+        '200':
+          description: Exported compliance data
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /compliance/entity/{entityId}:
+    get:
+      summary: Get entity audit trail
+      operationId: getEntityAuditTrail
+      tags: [Compliance]
+      parameters:
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Entity audit trail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entity_id:
+                    type: string
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ComplianceEvent'
+
+  # ========================================
+  # NOTIFICATIONS SERVICE
+  # ========================================
+  /notifications/send:
+    post:
+      summary: Send notification
+      operationId: sendNotification
+      tags: [Notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [recipient_id, channel, template, data]
+              properties:
+                recipient_id:
+                  type: string
+                channel:
+                  type: string
+                  enum: [EMAIL, SMS, PUSH]
+                template:
+                  type: string
+                data:
+                  type: object
+      responses:
+        '200':
+          description: Notification sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notification_id:
+                    type: string
+                  status:
+                    type: string
+
+tags:
+  - name: Stores
+    description: Store management
+  - name: Customers
+    description: Customer and rewards management
+  - name: Orders
+    description: Order lifecycle management
+  - name: Payments
+    description: PayPal payment processing
+  - name: Inventory
+    description: Inventory management
+  - name: Drivers
+    description: Driver and delivery management
+  - name: Staff
+    description: Staff and shift management
+  - name: Metrics
+    description: Business intelligence and KPIs
+  - name: Compliance
+    description: Audit and compliance tracking
+  - name: Notifications
+    description: Multi-channel notifications

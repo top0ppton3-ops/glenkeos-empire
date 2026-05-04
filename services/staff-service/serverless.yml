@@ -1,0 +1,86 @@
+service: glenkeos-staff-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  environment:
+    STAGE: ${self:provider.stage}
+    DB_HOST: ${ssm:/glenkeos/${self:provider.stage}/db/host}
+    DB_NAME: ${ssm:/glenkeos/${self:provider.stage}/db/name}
+    DB_USER: ${ssm:/glenkeos/${self:provider.stage}/db/user}
+    DB_PASSWORD: ${ssm:/glenkeos/${self:provider.stage}/db/password~true}
+    EVENT_BUS_NAME: ${ssm:/glenkeos/${self:provider.stage}/eventbridge/bus-name}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource: '*'
+
+functions:
+  createStaff:
+    handler: src/handlers/createStaff.handler
+    events:
+      - http:
+          path: /staff
+          method: post
+          cors: true
+
+  getStaff:
+    handler: src/handlers/getStaff.handler
+    events:
+      - http:
+          path: /staff
+          method: get
+          cors: true
+
+  getStaffMember:
+    handler: src/handlers/getStaffMember.handler
+    events:
+      - http:
+          path: /staff/{staffId}
+          method: get
+          cors: true
+
+  updateStaff:
+    handler: src/handlers/updateStaff.handler
+    events:
+      - http:
+          path: /staff/{staffId}
+          method: put
+          cors: true
+
+  startShift:
+    handler: src/handlers/startShift.handler
+    events:
+      - http:
+          path: /staff/{staffId}/shift/start
+          method: post
+          cors: true
+
+  endShift:
+    handler: src/handlers/endShift.handler
+    events:
+      - http:
+          path: /staff/{staffId}/shift/end
+          method: post
+          cors: true
+
+  assignRole:
+    handler: src/handlers/assignRole.handler
+    events:
+      - http:
+          path: /staff/{staffId}/roles
+          method: post
+          cors: true
+
+plugins:
+  - serverless-offline
+
+package:
+  individually: true
